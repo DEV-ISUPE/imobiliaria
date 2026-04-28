@@ -1,36 +1,671 @@
 <!DOCTYPE html>
-<html lang="pt-BR">
+<html lang="pt-PT">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Painel Administrativo - Maison Huambo</title>
-  <link rel="stylesheet" href="css/admin.css">
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>Super Admin | Maison Huambo</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://unpkg.com/lucide@latest"></script>
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        brand: {
+                            50: '#f0fdfa',
+                            100: '#ccfbf1',
+                            500: '#14b8a6',
+                            600: '#0d9488',
+                            900: '#134e4a',
+                        }
+                    },
+                    fontFamily: {
+                        sans: ['Inter', 'ui-sans-serif', 'system-ui', 'sans-serif'],
+                    }
+                }
+            }
+        }
+    </script>
+    <style>
+        .fade-in { animation: fadeIn 0.3s ease-in-out; }
+        @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
+        .modal-open { overflow: hidden; }
+    </style>
 </head>
-<body>
-  <header>
-    <h1>Painel do Corretor</h1>
-    <nav>
-      <a href="index.html">Voltar ao Site</a>
-    </nav>
-  </header>
+<body class="bg-gray-100 text-gray-800 font-sans antialiased flex h-screen overflow-hidden">
 
-  <main>
-    <section id="add-property">
-      <h2>Cadastrar Novo Imóvel</h2>
-      <form id="property-form">
-        <input type="text" id="title" placeholder="Título" required>
-        <input type="number" id="price" placeholder="Preço" required>
-        <textarea id="description" placeholder="Descrição" required></textarea>
-        <button type="submit">Cadastrar</button>
-      </form>
-    </section>
+    <aside class="hidden md:flex flex-col w-64 bg-slate-900 text-slate-300 h-full transition-all">
+        <div class="h-16 flex items-center px-6 border-b border-slate-800 bg-slate-950">
+            <div class="flex items-center gap-2 text-white">
+                <i data-lucide="shield-check" class="text-brand-500 w-6 h-6"></i>
+                <span class="font-bold text-lg tracking-tight">Super Admin</span>
+            </div>
+        </div>
+        
+        <div class="p-4 flex flex-col gap-2 flex-grow">
+            <p class="px-2 text-xs font-semibold text-slate-500 uppercase tracking-wider mb-2 mt-4">Gestão de Anúncios</p>
+            
+            <button onclick="switchTab('aprovacoes')" id="tab-btn-aprovacoes" class="flex items-center justify-between px-3 py-2.5 rounded-lg font-medium transition-colors bg-brand-600 text-white w-full text-left">
+                <div class="flex items-center gap-3">
+                    <i data-lucide="inbox" class="w-5 h-5"></i>
+                    Aprovações
+                </div>
+                <span id="badge-pendentes" class="bg-red-500 text-white text-xs font-bold px-2 py-0.5 rounded-full">2</span>
+            </button>
+            
+            <button onclick="switchTab('catalogo')" id="tab-btn-catalogo" class="flex items-center gap-3 px-3 py-2.5 rounded-lg font-medium transition-colors hover:bg-slate-800 hover:text-white text-slate-300 w-full text-left">
+                <i data-lucide="layers" class="w-5 h-5"></i>
+                Catálogo Geral
+            </button>
 
-    <section id="property-list">
-      <h2>Imóveis Cadastrados</h2>
-      <div id="properties-admin"></div>
-    </section>
-  </main>
+            <p class="px-2 text-xs font-semibold text-slate-500 uppercase tracking-wider mb-2 mt-6">Sistema</p>
 
-  <script src="js/admin.js"></script>
+            <button onclick="switchTab('corretores')" id="tab-btn-corretores" class="flex items-center gap-3 px-3 py-2.5 rounded-lg font-medium transition-colors hover:bg-slate-800 hover:text-white text-slate-300 w-full text-left">
+                <i data-lucide="users" class="w-5 h-5"></i>
+                Corretores
+            </button>
+        </div>
+
+        <div class="p-4 border-t border-slate-800 bg-slate-950">
+            <button onclick="showToast('Sessão terminada.', 'info')" class="flex items-center gap-3 px-3 py-2.5 rounded-lg font-medium text-red-400 hover:bg-red-500/10 hover:text-red-300 w-full transition-colors text-left">
+                <i data-lucide="log-out" class="w-5 h-5"></i>
+                Sair do Painel
+            </button>
+        </div>
+    </aside>
+
+    <main class="flex-1 flex flex-col h-full overflow-hidden">
+        <header class="h-16 bg-white border-b border-gray-200 flex items-center justify-between px-4 sm:px-6 z-10 shadow-sm">
+            <div class="flex items-center gap-3 md:hidden">
+                <i data-lucide="shield-check" class="text-brand-600 w-6 h-6"></i>
+                <span class="font-bold text-lg text-brand-900">Admin</span>
+            </div>
+            
+            <div class="hidden md:block">
+                <h1 id="page-title" class="text-xl font-bold text-gray-800">Centro de Aprovações</h1>
+            </div>
+
+            <div class="flex items-center gap-4">
+                <div class="flex items-center gap-3 pl-4">
+                    <div class="text-right hidden sm:block">
+                        <p class="font-bold text-gray-900 text-sm">Administração Central</p>
+                        <p class="text-brand-600 text-xs font-medium">Controlo de Qualidade</p>
+                    </div>
+                    <div class="bg-brand-100 p-2 rounded-full border border-brand-200 text-brand-700">
+                        <i data-lucide="shield" class="w-5 h-5"></i>
+                    </div>
+                </div>
+            </div>
+        </header>
+
+        <div class="flex-1 overflow-y-auto p-4 sm:p-6 lg:p-8">
+            
+            <div id="view-aprovacoes" class="fade-in block">
+                <div class="grid grid-cols-1 sm:grid-cols-3 gap-4 mb-8">
+                    <div class="bg-white rounded-xl p-5 shadow-sm border border-gray-200 flex items-center justify-between border-l-4 border-l-orange-500">
+                        <div>
+                            <p class="text-sm font-medium text-gray-500 mb-1">Aguardando Avaliação</p>
+                            <h3 id="stat-pendentes" class="text-2xl font-bold text-gray-900">0</h3>
+                        </div>
+                        <div class="bg-orange-50 p-3 rounded-lg text-orange-600">
+                            <i data-lucide="clock" class="w-6 h-6"></i>
+                        </div>
+                    </div>
+                    <div class="bg-white rounded-xl p-5 shadow-sm border border-gray-200 flex items-center justify-between border-l-4 border-l-green-500">
+                        <div>
+                            <p class="text-sm font-medium text-gray-500 mb-1">Total Aprovados</p>
+                            <h3 id="stat-aprovados" class="text-2xl font-bold text-gray-900">0</h3>
+                        </div>
+                        <div class="bg-green-50 p-3 rounded-lg text-green-600">
+                            <i data-lucide="check-circle" class="w-6 h-6"></i>
+                        </div>
+                    </div>
+                    <div class="bg-white rounded-xl p-5 shadow-sm border border-gray-200 flex items-center justify-between border-l-4 border-l-red-500">
+                        <div>
+                            <p class="text-sm font-medium text-gray-500 mb-1">Total Rejeitados</p>
+                            <h3 id="stat-rejeitados" class="text-2xl font-bold text-gray-900">0</h3>
+                        </div>
+                        <div class="bg-red-50 p-3 rounded-lg text-red-600">
+                            <i data-lucide="x-circle" class="w-6 h-6"></i>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="bg-white rounded-xl shadow-sm border border-gray-200 overflow-hidden">
+                    <div class="p-5 border-b border-gray-200 bg-gray-50/50">
+                        <h2 class="text-lg font-bold text-gray-900">Fila de Moderação</h2>
+                        <p class="text-sm text-gray-500">Analise os imóveis submetidos pelos corretores antes de serem publicados para os clientes.</p>
+                    </div>
+                    
+                    <div class="overflow-x-auto">
+                        <table class="w-full text-left text-sm whitespace-nowrap">
+                            <thead class="bg-gray-100 text-gray-600 font-semibold uppercase text-xs">
+                                <tr>
+                                    <th class="px-6 py-4">Imóvel Submetido</th>
+                                    <th class="px-6 py-4">Corretor Responsável</th>
+                                    <th class="px-6 py-4">Preço (AOA)</th>
+                                    <th class="px-6 py-4">Data Submissão</th>
+                                    <th class="px-6 py-4 text-center">Ações de Moderação</th>
+                                </tr>
+                            </thead>
+                            <tbody id="table-body-pendentes" class="divide-y divide-gray-100 text-gray-700">
+                            </tbody>
+                        </table>
+                    </div>
+                    
+                    <div id="empty-pendentes" class="hidden flex flex-col items-center justify-center py-12 text-center">
+                        <div class="bg-green-100 p-4 rounded-full mb-4">
+                            <i data-lucide="check-check" class="w-8 h-8 text-green-600"></i>
+                        </div>
+                        <h3 class="text-lg font-bold text-gray-900 mb-1">Tudo em dia!</h3>
+                        <p class="text-gray-500 text-sm">Não há imóveis a aguardar aprovação no momento.</p>
+                    </div>
+                </div>
+            </div>
+
+            <div id="view-catalogo" class="fade-in hidden">
+                <div class="bg-white rounded-xl shadow-sm border border-gray-200 overflow-hidden">
+                    <div class="p-5 border-b border-gray-200 bg-gray-50/50 flex justify-between items-center">
+                        <div>
+                            <h2 class="text-lg font-bold text-gray-900">Histórico e Catálogo</h2>
+                            <p class="text-sm text-gray-500">Todos os imóveis já moderados (Aprovados ou Rejeitados).</p>
+                        </div>
+                    </div>
+                    
+                    <div class="overflow-x-auto">
+                        <table class="w-full text-left text-sm whitespace-nowrap">
+                            <thead class="bg-gray-100 text-gray-600 font-semibold uppercase text-xs">
+                                <tr>
+                                    <th class="px-6 py-4">Propriedade</th>
+                                    <th class="px-6 py-4">Corretor</th>
+                                    <th class="px-6 py-4">Preço (AOA)</th>
+                                    <th class="px-6 py-4">Status Atual</th>
+                                </tr>
+                            </thead>
+                            <tbody id="table-body-catalogo" class="divide-y divide-gray-100 text-gray-700">
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+
+            <div id="view-corretores" class="fade-in hidden">
+                <div class="grid grid-cols-1 sm:grid-cols-2 gap-4 mb-8">
+                    <div class="bg-white rounded-xl p-5 shadow-sm border border-gray-200 flex items-center gap-4">
+                        <div class="bg-brand-50 p-4 rounded-full text-brand-600">
+                            <i data-lucide="users" class="w-8 h-8"></i>
+                        </div>
+                        <div>
+                            <p class="text-sm font-medium text-gray-500 mb-1">Total de Corretores Ativos</p>
+                            <h3 id="stat-corretores-ativos" class="text-2xl font-bold text-gray-900">0</h3>
+                        </div>
+                    </div>
+                    <div class="bg-white rounded-xl p-5 shadow-sm border border-gray-200 flex items-center justify-between border-l-4 border-l-brand-500">
+                        <div>
+                            <p class="text-sm font-medium text-gray-500 mb-2">Ação Rápida</p>
+                            <button onclick="openAddCorretorModal()" class="bg-brand-600 hover:bg-brand-500 text-white px-4 py-2 rounded-lg font-medium transition text-sm flex items-center gap-2 shadow-sm">
+                                <i data-lucide="user-plus" class="w-4 h-4"></i>
+                                Adicionar Novo Corretor
+                            </button>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="bg-white rounded-xl shadow-sm border border-gray-200 overflow-hidden">
+                    <div class="p-5 border-b border-gray-200 bg-gray-50/50">
+                        <h2 class="text-lg font-bold text-gray-900">Equipa de Corretores</h2>
+                        <p class="text-sm text-gray-500">Faça a gestão dos utilizadores autorizados a publicar imóveis na plataforma.</p>
+                    </div>
+                    
+                    <div class="overflow-x-auto">
+                        <table class="w-full text-left text-sm whitespace-nowrap">
+                            <thead class="bg-gray-100 text-gray-600 font-semibold uppercase text-xs">
+                                <tr>
+                                    <th class="px-6 py-4">Nome do Corretor</th>
+                                    <th class="px-6 py-4">Contactos</th>
+                                    <th class="px-6 py-4 text-center">Imóveis no Sistema</th>
+                                    <th class="px-6 py-4">Status da Conta</th>
+                                    <th class="px-6 py-4 text-right">Ações</th>
+                                </tr>
+                            </thead>
+                            <tbody id="table-body-corretores" class="divide-y divide-gray-100 text-gray-700">
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+
+        </div>
+    </main>
+
+    <div id="review-modal" class="fixed inset-0 z-50 hidden" aria-labelledby="modal-title" role="dialog" aria-modal="true">
+        <div class="fixed inset-0 bg-slate-900 bg-opacity-80 transition-opacity backdrop-blur-sm" onclick="closeReviewModal()"></div>
+        <div class="fixed inset-0 z-10 overflow-y-auto">
+            <div class="flex min-h-full items-end justify-center p-4 text-center sm:items-center sm:p-0">
+                <div class="relative transform overflow-hidden rounded-2xl bg-white text-left shadow-2xl transition-all sm:my-8 sm:w-full sm:max-w-3xl fade-in flex flex-col md:flex-row">
+                    
+                    <div class="md:w-1/2 h-64 md:h-auto relative bg-gray-100">
+                        <img id="modal-img" src="" alt="Property" class="w-full h-full object-cover">
+                    </div>
+
+                    <div class="md:w-1/2 p-6 md:p-8 flex flex-col justify-between">
+                        <div>
+                            <div class="flex justify-between items-start mb-4">
+                                <div>
+                                    <p class="text-xs font-bold text-orange-600 uppercase tracking-wider mb-1 bg-orange-100 inline-block px-2 py-0.5 rounded">Em Análise</p>
+                                    <h3 id="modal-title" class="text-2xl font-bold text-gray-900 leading-tight"></h3>
+                                </div>
+                                <button type="button" class="text-gray-400 hover:text-gray-500 bg-gray-100 rounded-full p-1" onclick="closeReviewModal()">
+                                    <i data-lucide="x" class="w-5 h-5"></i>
+                                </button>
+                            </div>
+                            
+                            <div class="space-y-3 text-sm mb-6">
+                                <p class="flex items-center gap-2 text-gray-600">
+                                    <i data-lucide="user" class="w-4 h-4 text-gray-400"></i>
+                                    <strong class="text-gray-900">Corretor:</strong> <span id="modal-corretor"></span>
+                                </p>
+                                <p class="flex items-center gap-2 text-gray-600">
+                                    <i data-lucide="map-pin" class="w-4 h-4 text-gray-400"></i>
+                                    <strong class="text-gray-900">Localização:</strong> <span id="modal-location"></span>
+                                </p>
+                                <p class="flex items-center gap-2 text-gray-600">
+                                    <i data-lucide="tag" class="w-4 h-4 text-gray-400"></i>
+                                    <strong class="text-gray-900">Tipo:</strong> <span id="modal-tipo"></span>
+                                </p>
+                                <p class="flex items-center gap-2 text-gray-600">
+                                    <i data-lucide="banknote" class="w-4 h-4 text-gray-400"></i>
+                                    <strong class="text-gray-900">Preço:</strong> <span id="modal-preco" class="font-bold text-brand-600"></span>
+                                </p>
+                            </div>
+                        </div>
+
+                        <input type="hidden" id="modal-imovel-id">
+
+                        <div class="pt-6 border-t border-gray-100 flex gap-3">
+                            <button onclick="executeAction('Rejeitado')" class="flex-1 flex items-center justify-center gap-2 bg-white border-2 border-red-500 text-red-600 hover:bg-red-50 font-bold py-2.5 px-4 rounded-xl transition shadow-sm">
+                                <i data-lucide="x-circle" class="w-5 h-5"></i> Rejeitar
+                            </button>
+                            <button onclick="executeAction('Aprovado')" class="flex-1 flex items-center justify-center gap-2 bg-green-600 hover:bg-green-500 text-white font-bold py-2.5 px-4 rounded-xl transition shadow-md">
+                                <i data-lucide="check-circle" class="w-5 h-5"></i> Aprovar
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div id="add-corretor-modal" class="fixed inset-0 z-50 hidden" aria-labelledby="modal-title" role="dialog" aria-modal="true">
+        <div class="fixed inset-0 bg-slate-900 bg-opacity-80 transition-opacity backdrop-blur-sm" onclick="closeAddCorretorModal()"></div>
+        <div class="fixed inset-0 z-10 overflow-y-auto">
+            <div class="flex min-h-full items-center justify-center p-4 text-center">
+                <div class="relative transform overflow-hidden rounded-2xl bg-white text-left shadow-2xl transition-all sm:my-8 sm:w-full sm:max-w-lg fade-in">
+                    
+                    <div class="px-6 py-4 border-b border-gray-100 flex justify-between items-center bg-gray-50">
+                        <h3 class="text-lg font-bold text-gray-900 flex items-center gap-2">
+                            <i data-lucide="user-plus" class="w-5 h-5 text-brand-600"></i> Novo Corretor
+                        </h3>
+                        <button type="button" class="text-gray-400 hover:text-gray-500 bg-gray-200/50 rounded-full p-1" onclick="closeAddCorretorModal()">
+                            <i data-lucide="x" class="w-5 h-5"></i>
+                        </button>
+                    </div>
+
+                    <form id="form-add-corretor" class="p-6">
+                        <div class="space-y-4 mb-6">
+                            <div>
+                                <label class="block text-sm font-semibold text-gray-700 mb-1">Nome Completo</label>
+                                <input type="text" id="add-corr-nome" required placeholder="Ex: João Miguel" class="w-full bg-gray-50 border border-gray-200 text-gray-900 py-2.5 px-3 rounded-lg focus:outline-none focus:ring-2 focus:ring-brand-500 bg-white">
+                            </div>
+                            
+                            <div>
+                                <label class="block text-sm font-semibold text-gray-700 mb-1">E-mail Profissional</label>
+                                <input type="email" id="add-corr-email" required placeholder="joao@maisonhuambo.ao" class="w-full bg-gray-50 border border-gray-200 text-gray-900 py-2.5 px-3 rounded-lg focus:outline-none focus:ring-2 focus:ring-brand-500 bg-white">
+                            </div>
+
+                            <div>
+                                <label class="block text-sm font-semibold text-gray-700 mb-1">Telefone / WhatsApp</label>
+                                <input type="tel" id="add-corr-tel" required placeholder="92X XXX XXX" class="w-full bg-gray-50 border border-gray-200 text-gray-900 py-2.5 px-3 rounded-lg focus:outline-none focus:ring-2 focus:ring-brand-500 bg-white">
+                            </div>
+                        </div>
+
+                        <div class="flex gap-3 pt-2">
+                            <button type="button" onclick="closeAddCorretorModal()" class="flex-1 px-4 py-2.5 text-gray-600 font-medium bg-gray-100 hover:bg-gray-200 rounded-lg transition">Cancelar</button>
+                            <button type="submit" class="flex-1 bg-brand-600 hover:bg-brand-500 text-white font-bold py-2.5 px-4 rounded-lg transition shadow-md">Criar Conta</button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div id="toast-container" class="fixed bottom-4 right-4 z-50 flex flex-col gap-2"></div>
+
+    <script>
+        lucide.createIcons();
+
+        // ==========================================
+        // ÁREA: DADOS E ESTADO GLOBAL
+        // ==========================================
+        // 'currentTab' controla qual aba está ativa ('aprovacoes', 'catalogo', 'corretores')
+        // 'imoveisData': Array com todos os imóveis do sistema (pendentes, aprovados, rejeitados)
+        // 'corretoresData': Array com todos os corretores cadastrados
+        let currentTab = 'aprovacoes';
+        let imoveisData = [
+            { id: 'imv-007', titulo: 'Terreno Comercial 50x50', corretor: 'Ernesto Tchiokola', tipo: 'Terreno', preco: 35000000, localizacao: 'Benfica', imagem: 'https://images.unsplash.com/photo-1500382017468-9049fed747ef?auto=format&fit=crop&w=800&q=80', status: 'Pendente', data: '2026-04-14' },
+            { id: 'imv-008', titulo: 'Apartamento T1 Económico', corretor: 'Flora Francisco', tipo: 'Apartamento', preco: 15000000, localizacao: 'São João', imagem: 'https://images.unsplash.com/photo-1522708323590-d24dbb6b0267?auto=format&fit=crop&w=800&q=80', status: 'Pendente', data: '2026-04-15' },
+            { id: 'imv-001', titulo: 'Vivenda T4 de Luxo', corretor: 'Paulo Kapitia', tipo: 'Vivenda', preco: 85000000, localizacao: 'Cidade Alta', imagem: 'https://images.unsplash.com/photo-1600596542815-ffad4c1539a9?auto=format&fit=crop&w=800&q=80', status: 'Aprovado', data: '2026-04-10' },
+            { id: 'imv-009', titulo: 'Anexo em Construção', corretor: 'Victor Luemba', tipo: 'Vivenda', preco: 5000000, localizacao: 'Centro', imagem: 'https://images.unsplash.com/photo-1564013799919-ab600027ffc6?auto=format&fit=crop&w=800&q=80', status: 'Rejeitado', data: '2026-04-11' }
+        ];
+
+        let corretoresData = [
+            { id: 'cor-001', nome: 'Paulo Kapitia', email: 'paulo@maisonhuambo.ao', telefone: '923 111 222', imoveis: 12, status: 'Ativo' },
+            { id: 'cor-002', nome: 'Flora Francisco', email: 'flora@maisonhuambo.ao', telefone: '924 333 444', imoveis: 5, status: 'Ativo' },
+            { id: 'cor-003', nome: 'Ernesto Tchiokola', email: 'ernesto@maisonhuambo.ao', telefone: '925 555 666', imoveis: 8, status: 'Ativo' },
+            { id: 'cor-004', nome: 'Victor Luemba', email: 'victor@maisonhuambo.ao', telefone: '926 777 888', imoveis: 2, status: 'Suspenso' }
+        ];
+
+        // ==========================================
+        // ÁREA: FUNÇÕES UTILITÁRIAS
+        // ==========================================
+        // Formatador de Moeda (Kwanza) - Usa API Intl do navegador
+        // Formata valores numéricos para o padrão monetário de Angola (AOA)
+        const formatCurrency = (value) => new Intl.NumberFormat('pt-AO', { style: 'currency', currency: 'AOA', minimumFractionDigits: 0 }).format(value);
+
+        // ==========================================
+        // ÁREA: RENDERIZAÇÃO DO DASHBOARD
+        // ==========================================
+        // Função principal que atualiza todas as tabelas e estatísticas
+        // Chama renderImoveis() e renderCorretores() e recria ícones
+        function renderAdminDashboard() {
+            renderImoveis();
+            renderCorretores();
+            lucide.createIcons();
+        }
+
+        // Renderiza a tabela de imóveis para o Super Admin
+        // Atualiza contadores (pendentes, aprovados, rejeitados)
+        // Gera as linhas da tabela com botões de ação (rever, aprovar, rejeitar)
+        function renderImoveis() {
+            const pendentes = imoveisData.filter(i => i.status === 'Pendente');
+            const aprovados = imoveisData.filter(i => i.status === 'Aprovado');
+            const rejeitados = imoveisData.filter(i => i.status === 'Rejeitado');
+
+            document.getElementById('stat-pendentes').textContent = pendentes.length;
+            document.getElementById('stat-aprovados').textContent = aprovados.length;
+            document.getElementById('stat-rejeitados').textContent = rejeitados.length;
+            document.getElementById('badge-pendentes').textContent = pendentes.length;
+            document.getElementById('badge-pendentes').style.display = pendentes.length > 0 ? 'inline-block' : 'none';
+
+            const tbodyPendentes = document.getElementById('table-body-pendentes');
+            tbodyPendentes.innerHTML = '';
+            
+            if (pendentes.length === 0) {
+                document.getElementById('empty-pendentes').classList.remove('hidden');
+            } else {
+                document.getElementById('empty-pendentes').classList.add('hidden');
+                pendentes.forEach(imovel => {
+                    tbodyPendentes.innerHTML += `
+                        <tr class="hover:bg-orange-50/30 transition">
+                            <td class="px-6 py-4 flex items-center gap-3">
+                                <img src="${imovel.imagem}" class="w-10 h-10 rounded-lg object-cover border border-gray-200">
+                                <div>
+                                    <p class="font-bold text-gray-900">${imovel.titulo}</p>
+                                    <p class="text-xs text-gray-500">${imovel.localizacao} • ${imovel.tipo}</p>
+                                </div>
+                            </td>
+                            <td class="px-6 py-4"><p class="text-gray-900 font-medium">${imovel.corretor}</p></td>
+                            <td class="px-6 py-4 font-bold text-gray-900">${formatCurrency(imovel.preco)}</td>
+                            <td class="px-6 py-4 text-gray-500">${imovel.data}</td>
+                            <td class="px-6 py-4 text-center flex justify-center gap-2">
+                                <button onclick="openReviewModal('${imovel.id}')" class="bg-blue-50 text-blue-600 hover:bg-blue-100 px-3 py-1.5 rounded flex items-center gap-1 text-xs font-bold transition" title="Rever">
+                                    <i data-lucide="eye" class="w-3.5 h-3.5"></i> Rever
+                                </button>
+                                <button onclick="moderationAction('${imovel.id}', 'Aprovado')" class="bg-green-50 text-green-600 hover:bg-green-100 px-3 py-1.5 rounded flex items-center gap-1 text-xs font-bold transition" title="Aprovar">
+                                    <i data-lucide="check" class="w-3.5 h-3.5"></i>
+                                </button>
+                                <button onclick="moderationAction('${imovel.id}', 'Rejeitado')" class="bg-red-50 text-red-600 hover:bg-red-100 px-3 py-1.5 rounded flex items-center gap-1 text-xs font-bold transition" title="Rejeitar">
+                                    <i data-lucide="x" class="w-3.5 h-3.5"></i>
+                                </button>
+                            </td>
+                        </tr>
+                    `;
+                });
+            }
+
+            const tbodyCatalogo = document.getElementById('table-body-catalogo');
+            tbodyCatalogo.innerHTML = '';
+            const historico = [...aprovados, ...rejeitados];
+            
+            historico.forEach(imovel => {
+                const statusBadge = imovel.status === 'Aprovado' 
+                    ? '<span class="bg-green-100 text-green-700 px-2 py-1 rounded text-xs font-bold uppercase flex items-center gap-1 w-max"><i data-lucide="check-circle" class="w-3 h-3"></i> Publicado</span>'
+                    : '<span class="bg-red-100 text-red-700 px-2 py-1 rounded text-xs font-bold uppercase flex items-center gap-1 w-max"><i data-lucide="x-circle" class="w-3 h-3"></i> Rejeitado</span>';
+
+                tbodyCatalogo.innerHTML += `
+                    <tr class="hover:bg-gray-50 transition">
+                        <td class="px-6 py-4 flex items-center gap-3">
+                            <img src="${imovel.imagem}" class="w-10 h-10 rounded-lg object-cover border border-gray-200 opacity-80">
+                            <div>
+                                <p class="font-bold text-gray-900">${imovel.titulo}</p>
+                                <p class="text-xs text-gray-500">${imovel.tipo}</p>
+                            </div>
+                        </td>
+                        <td class="px-6 py-4 text-gray-600">${imovel.corretor}</td>
+                        <td class="px-6 py-4 font-semibold text-gray-900">${formatCurrency(imovel.preco)}</td>
+                        <td class="px-6 py-4">${statusBadge}</td>
+                    </tr>
+                `;
+            });
+        }
+
+        // Renderiza a tabela de corretores
+        // Stats: Total de corretores ativos
+        // Permite suspender/reativar contas
+        function renderCorretores() {
+            const ativos = corretoresData.filter(c => c.status === 'Ativo').length;
+            document.getElementById('stat-corretores-ativos').textContent = ativos;
+
+            const tbodyCorretores = document.getElementById('table-body-corretores');
+            tbodyCorretores.innerHTML = '';
+            
+            corretoresData.forEach(corr => {
+                const isAtivo = corr.status === 'Ativo';
+                const statusBadge = isAtivo
+                    ? '<span class="bg-green-100 text-green-700 px-2 py-1 rounded text-xs font-bold uppercase tracking-wide">Ativo</span>'
+                    : '<span class="bg-red-100 text-red-700 px-2 py-1 rounded text-xs font-bold uppercase tracking-wide">Suspenso</span>';
+                
+                const toggleAction = isAtivo 
+                    ? `<button onclick="toggleCorretorStatus('${corr.id}')" class="text-red-500 hover:text-red-700 p-1 bg-red-50 rounded" title="Suspender Conta"><i data-lucide="user-minus" class="w-4 h-4"></i></button>`
+                    : `<button onclick="toggleCorretorStatus('${corr.id}')" class="text-green-600 hover:text-green-800 p-1 bg-green-50 rounded" title="Reativar Conta"><i data-lucide="user-check" class="w-4 h-4"></i></button>`;
+
+                tbodyCorretores.innerHTML += `
+                    <tr class="hover:bg-gray-50 transition ${!isAtivo ? 'opacity-60' : ''}">
+                        <td class="px-6 py-4 flex items-center gap-3">
+                            <div class="w-10 h-10 rounded-full bg-brand-100 border border-brand-200 text-brand-700 flex items-center justify-center font-bold text-lg uppercase">
+                                ${corr.nome.charAt(0)}
+                            </div>
+                            <p class="font-bold text-gray-900">${corr.nome}</p>
+                        </td>
+                        <td class="px-6 py-4">
+                            <p class="text-gray-900 text-sm flex items-center gap-1.5"><i data-lucide="mail" class="w-3.5 h-3.5 text-gray-400"></i> ${corr.email}</p>
+                            <p class="text-gray-500 text-xs flex items-center gap-1.5 mt-0.5"><i data-lucide="phone" class="w-3.5 h-3.5 text-gray-400"></i> ${corr.telefone}</p>
+                        </td>
+                        <td class="px-6 py-4 text-center font-bold text-gray-700 text-lg">
+                            ${corr.imoveis}
+                        </td>
+                        <td class="px-6 py-4">${statusBadge}</td>
+                        <td class="px-6 py-4 text-right">
+                            <button onclick="showToast('Modo de edição em desenvolvimento', 'info')" class="text-blue-600 hover:text-blue-800 p-1 bg-blue-50 rounded mr-1" title="Editar"><i data-lucide="edit-3" class="w-4 h-4"></i></button>
+                            ${toggleAction}
+                        </td>
+                    </tr>
+                `;
+            });
+            lucide.createIcons();
+        }
+
+        // ==========================================
+        // ÁREA: NAVEGAÇÃO ENTRE ABAS
+        // ==========================================
+        // Alterna entre as abas "Centro de Aprovações", "Catálogo Geral" e "Gestão de Corretores"
+        // Esconde/mostra views e atualiza estilos dos botões da sidebar
+        function switchTab(tab) {
+            document.getElementById('view-aprovacoes').classList.add('hidden');
+            document.getElementById('view-catalogo').classList.add('hidden');
+            document.getElementById('view-corretores').classList.add('hidden');
+            
+            document.getElementById(`view-${tab}`).classList.remove('hidden');
+            
+            const btns = ['aprovacoes', 'catalogo', 'corretores'];
+            btns.forEach(b => {
+                const el = document.getElementById(`tab-btn-${b}`);
+                el.className = "flex items-center gap-3 px-3 py-2.5 rounded-lg font-medium transition-colors hover:bg-slate-800 hover:text-white text-slate-300 w-full text-left";
+            });
+
+            const btnAprovacoes = document.getElementById('tab-btn-aprovacoes');
+            if(tab !== 'aprovacoes') {
+                btnAprovacoes.className = "flex items-center justify-between px-3 py-2.5 rounded-lg font-medium transition-colors hover:bg-slate-800 hover:text-white text-slate-300 w-full text-left";
+            }
+            
+            const activeEl = document.getElementById(`tab-btn-${tab}`);
+            if(tab === 'aprovacoes') {
+                activeEl.className = "flex items-center justify-between px-3 py-2.5 rounded-lg font-medium transition-colors bg-brand-600 text-white w-full text-left";
+                document.getElementById('page-title').textContent = "Centro de Aprovações";
+            } else if(tab === 'catalogo') {
+                activeEl.className = "flex items-center gap-3 px-3 py-2.5 rounded-lg font-medium transition-colors bg-brand-600 text-white w-full text-left";
+                document.getElementById('page-title').textContent = "Catálogo Geral (Histórico)";
+            } else if(tab === 'corretores') {
+                activeEl.className = "flex items-center gap-3 px-3 py-2.5 rounded-lg font-medium transition-colors bg-brand-600 text-white w-full text-left";
+                document.getElementById('page-title').textContent = "Gestão de Corretores";
+            }
+        }
+
+        // ==========================================
+        // ÁREA: LÓGICA DE MODERAÇÃO DE IMÓVEIS
+        // ==========================================
+        // Aprova ou Rejeita um imóvel submetido por um corretor
+        // Em produção seria: PATCH /api/admin/properties/:id/status
+        function moderationAction(id, novoStatus) {
+            const imovel = imoveisData.find(i => i.id === id);
+            if(imovel) {
+                imovel.status = novoStatus;
+                renderAdminDashboard();
+                const msg = novoStatus === 'Aprovado' ? 'Imóvel aprovado e publicado!' : 'Submissão rejeitada!';
+                showToast(msg, novoStatus === 'Aprovado' ? 'success' : 'error');
+            }
+        }
+
+        // ==========================================
+        // ÁREA: GESTÃO DE MODAIS (JANELAS POP-UP)
+        // ==========================================
+        // Modal de Revisão do Imóvel - Permite ver detalhes antes de aprovar/rejeitar
+        const reviewModal = document.getElementById('review-modal');
+        function openReviewModal(id) {
+            const imovel = imoveisData.find(i => i.id === id);
+            if (!imovel) return;
+
+            document.getElementById('modal-img').src = imovel.imagem;
+            document.getElementById('modal-title').textContent = imovel.titulo;
+            document.getElementById('modal-corretor').textContent = imovel.corretor;
+            document.getElementById('modal-location').textContent = imovel.localizacao;
+            document.getElementById('modal-tipo').textContent = imovel.tipo;
+            document.getElementById('modal-preco').textContent = formatCurrency(imovel.preco);
+            document.getElementById('modal-imovel-id').value = imovel.id;
+
+            reviewModal.classList.remove('hidden');
+            document.body.classList.add('modal-open');
+        }
+        // Fecha modal de revisão e liberta scroll do body
+        function closeReviewModal() {
+            reviewModal.classList.add('hidden');
+            document.body.classList.remove('modal-open');
+        }
+        // Executa ação (Aprovar/Rejeitar) a partir do modal de revisão
+        function executeAction(status) {
+            moderationAction(document.getElementById('modal-imovel-id').value, status);
+            closeReviewModal();
+        }
+
+        // Modal Adicionar Corretor - Permite criar nova conta de corretor
+        const addCorretorModal = document.getElementById('add-corretor-modal');
+        
+        function openAddCorretorModal() {
+            document.getElementById('form-add-corretor').reset();
+            addCorretorModal.classList.remove('hidden');
+            document.body.classList.add('modal-open');
+        }
+        
+        // Fecha modal de adicionar corretor
+        function closeAddCorretorModal() {
+            addCorretorModal.classList.add('hidden');
+            document.body.classList.remove('modal-open');
+        }
+
+        // Processa o formulário de adicionar novo corretor
+        // Cria objeto com dados do formulário e adiciona ao início da lista
+        // Fecha modal e mostra toast de sucesso
+        document.getElementById('form-add-corretor').addEventListener('submit', (e) => {
+            e.preventDefault();
+            const novo = {
+                id: 'cor-' + Math.floor(Math.random() * 1000),
+                nome: document.getElementById('add-corr-nome').value,
+                email: document.getElementById('add-corr-email').value,
+                telefone: document.getElementById('add-corr-tel').value,
+                imoveis: 0,
+                status: 'Ativo'
+            };
+            corretoresData.unshift(novo);
+            closeAddCorretorModal();
+            renderAdminDashboard();
+            showToast('Novo corretor registado com sucesso.', 'success');
+        });
+
+        // Suspende ou reativa a conta de um corretor
+        // Em produção seria: PATCH /api/admin/corretores/:id/status
+        function toggleCorretorStatus(id) {
+            const corr = corretoresData.find(c => c.id === id);
+            if(corr) {
+                corr.status = corr.status === 'Ativo' ? 'Suspenso' : 'Ativo';
+                renderAdminDashboard();
+                showToast(`Conta do corretor ${corr.status === 'Ativo' ? 'reativada' : 'suspensa'}!`, corr.status === 'Ativo' ? 'success' : 'error');
+            }
+        }
+
+        // ==========================================
+        // ÁREA: SISTEMA DE NOTIFICAÇÕES (TOASTS)
+        // ==========================================
+        // Mostra notificação temporária (verde para sucesso, azul para info, vermelho para erro)
+        // Auto-remove após 4 segundos com animação de fade-out
+        function showToast(message, type = 'success') {
+            const container = document.getElementById('toast-container');
+            const toast = document.createElement('div');
+            
+            let bgColor = 'bg-blue-600', icon = 'info';
+            if(type === 'success') { bgColor = 'bg-green-600'; icon = 'check-circle'; }
+            if(type === 'error') { bgColor = 'bg-red-600'; icon = 'x-circle'; }
+
+            toast.className = `${bgColor} text-white px-4 py-3 rounded-lg shadow-lg flex items-center gap-3 transform transition-all duration-300 translate-y-10 opacity-0`;
+            toast.innerHTML = `<i data-lucide="${icon}" class="w-5 h-5 flex-shrink-0"></i><p class="text-sm font-medium">${message}</p>`;
+
+            container.appendChild(toast);
+            lucide.createIcons();
+
+            requestAnimationFrame(() => {
+                toast.classList.remove('translate-y-10', 'opacity-0');
+            });
+
+            setTimeout(() => {
+                toast.classList.add('opacity-0', 'translate-x-10');
+                setTimeout(() => toast.remove(), 300);
+            }, 4000);
+        }
+
+        // ==========================================
+        // ÁREA: INICIALIZAÇÃO DA APLICAÇÃO
+        // ==========================================
+        // Quando a página carrega, renderiza o dashboard inicial
+        window.addEventListener('DOMContentLoaded', renderAdminDashboard);
+    </script>
 </body>
 </html>

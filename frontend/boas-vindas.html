@@ -1,0 +1,116 @@
+<!DOCTYPE html>
+<html lang="pt-PT">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>Maison Huambo | Bem-vindo</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://unpkg.com/lucide@latest"></script>
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        brand: {
+                            50: '#f0fdfa',
+                            100: '#ccfbf1',
+                            500: '#14b8a6',
+                            600: '#0d9488',
+                            900: '#134e4a',
+                        }
+                    },
+                    fontFamily: {
+                        sans: ['Inter', 'ui-sans-serif', 'system-ui', 'sans-serif'],
+                    }
+                }
+            }
+        }
+    </script>
+    <style>
+        body { margin: 0; }
+        /* Efeito de fundo animado */
+        .bg-animated {
+            background: linear-gradient(-45deg, #134e4a, #0d9488, #14b8a6, #0d9488);
+            background-size: 400% 400%;
+            animation: gradientBG 15s ease infinite;
+        }
+        @keyframes gradientBG {
+            0% { background-position: 0% 50%; }
+            50% { background-position: 100% 50%; }
+            100% { background-position: 0% 50%; }
+        }
+        /* Efeito Glass */
+        .glass {
+            background: rgba(255, 255, 255, 0.1);
+            backdrop-filter: blur(10px);
+            -webkit-backdrop-filter: blur(10px);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+        }
+        /* Animação de Pulse Light */
+        @keyframes pulse-light {
+            0%, 100% { box-shadow: 0 0 0 0 rgba(255, 255, 255, 0.7); }
+            50% { box-shadow: 0 0 0 15px rgba(255, 255, 255, 0.7); }
+        }
+        .pulse-light {
+            animation: pulse-light 2s infinite;
+        }
+        /* Fade in */
+        .fade-in { animation: fadeIn 1s ease-out; }
+        @keyframes fadeIn { from { opacity: 0; transform: translateY(20px); } to { opacity: 1; transform: translateY(0); } }
+    </style>
+</head>
+<body class="bg-animated min-h-screen flex items-center justify-center p-4">
+
+    <!-- Container Glass Central -->
+    <div class="glass rounded-3xl p-8 md:p-12 max-w-2xl w-full fade-in shadow-2xl">
+        
+        <!-- Logo e Título -->
+        <div class="text-center mb-8">
+            <div class="inline-flex items-center justify-center w-20 h-20 rounded-2xl bg-white/20 mb-4">
+                <i data-lucide="home" class="w-10 h-10 text-white"></i>
+            </div>
+            <h1 class="text-4xl md:text-5xl font-extrabold text-white mb-2">Maison Huambo</h1>
+            <p class="text-white/80 text-lg">O seu parceiro ideal no mercado imobiliário do Huambo</p>
+        </div>
+
+        <!-- Cards de Destaques (Glass interno) -->
+        <div class="grid grid-cols-1 md:grid-cols-3 gap-4 mb-10">
+            <div class="glass rounded-xl p-4 text-center">
+                <i data-lucide="building" class="w-8 h-8 text-white mx-auto mb-2"></i>
+                <h3 class="text-white font-bold">+500</h3>
+                <p class="text-white/70 text-sm">Imóveis</p>
+            </div>
+            <div class="glass rounded-xl p-4 text-center">
+                <i data-lucide="users" class="w-8 h-8 text-white mx-auto mb-2"></i>
+                <h3 class="text-white font-bold">+50</h3>
+                <p class="text-white/70 text-sm">Corretores</p>
+            </div>
+            <div class="glass rounded-xl p-4 text-center">
+                <i data-lucide="check-circle" class="w-8 h-8 text-white mx-auto mb-2"></i>
+                <h3 class="text-white font-bold">95%</h3>
+                <p class="text-white/70 text-sm">Satisfação</p>
+            </div>
+        </div>
+
+        <!-- Descrição -->
+        <p class="text-white/90 text-center mb-8 leading-relaxed">
+            Encontre, compre ou arrende imóveis com segurança e tranquilidade. 
+            A plataforma líder em soluções imobiliárias na província do Huambo.
+        </p>
+
+        <!-- Botão Continuar com Pulse Effect -->
+        <div class="text-center">
+            <a href="login.html" class="inline-flex items-center gap-3 bg-white text-brand-900 font-bold text-lg px-8 py-4 rounded-full pulse-light hover:bg-gray-100 transition transform hover:scale-105">
+                <span>Continuar</span>
+                <i data-lucide="arrow-right" class="w-5 h-5"></i>
+            </a>
+            <p class="text-white/60 text-sm mt-4">Clique para entrar ou criar uma conta</p>
+        </div>
+
+    </div>
+
+    <script>
+        lucide.createIcons();
+    </script>
+</body>
+</html>

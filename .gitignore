@@ -5,14 +5,15 @@ backend/node_modules/
 # Ambiente
 .env
 backend/.env
-
-# Logs
-*.log
-npm-debug.log*
+.env.example
 
 # Sistema
 .DS_Store
 Thumbs.db
+
+# Logs
+*.log
+npm-debug.log*
 
 # IDE
 .vscode/

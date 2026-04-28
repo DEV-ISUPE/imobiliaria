@@ -1,0 +1,480 @@
+<!DOCTYPE html>
+<html lang="pt-PT">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>Painel do Proprietário | Maison Huambo</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://unpkg.com/lucide@latest"></script>
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        brand: {
+                            50: '#f0fdfa',
+                            100: '#ccfbf1',
+                            500: '#14b8a6',
+                            600: '#0d9488',
+                            900: '#134e4a',
+                        }
+                    },
+                    fontFamily: {
+                        sans: ['Inter', 'ui-sans-serif', 'system-ui', 'sans-serif'],
+                    }
+                }
+            }
+        }
+    </script>
+    <style>
+        .fade-in { animation: fadeIn 0.3s ease-in-out; }
+        @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
+        .modal-open { overflow: hidden; }
+        .no-scrollbar::-webkit-scrollbar { display: none; }
+        .no-scrollbar { -ms-overflow-style: none; scrollbar-width: none; }
+    </style>
+</head>
+<body class="bg-gray-50 text-gray-800 font-sans antialiased flex h-screen overflow-hidden">
+
+    <aside class="hidden md:flex flex-col w-64 bg-white border-r border-gray-200 h-full">
+        <div class="h-16 flex items-center px-6 border-b border-gray-200">
+            <div class="flex items-center gap-2">
+                <i data-lucide="home" class="text-brand-600 w-6 h-6"></i>
+                <span class="font-bold text-lg tracking-tight text-brand-900">Maison Proprietário</span>
+            </div>
+        </div>
+        
+        <div class="p-4 flex flex-col gap-2 flex-grow">
+            <p class="px-2 text-xs font-semibold text-gray-400 uppercase tracking-wider mb-2">Menu Principal</p>
+            
+<button onclick="switchTab('imoveis')" id="tab-btn-imoveis" class="flex items-center gap-3 px-3 py-2.5 rounded-lg font-medium transition-colors bg-brand-50 text-brand-600 w-full text-left">
+                <i data-lucide="home" class="w-5 h-5"></i>
+                Meus Imóveis
+            </button>
+            
+            <button onclick="switchTab('agendamentos')" id="tab-btn-agendamentos" class="flex items-center gap-3 px-3 py-2.5 rounded-lg font-medium transition-colors text-gray-600 hover:bg-gray-50 w-full text-left">
+                <div class="relative">
+                    <i data-lucide="calendar-check" class="w-5 h-5"></i>
+                    <span class="absolute -top-1 -right-1 flex h-2.5 w-2.5">
+                        <span class="animate-ping absolute inline-flex h-full w-full rounded-full bg-red-400 opacity-75"></span>
+                        <span class="relative inline-flex rounded-full h-2.5 w-2.5 bg-red-500"></span>
+                    </span>
+                </div>
+                Agendamentos
+            </button>
+        </div>
+
+        <div class="p-4 border-t border-gray-200">
+            <button onclick="showToast('A terminar sessão...', 'info')" class="flex items-center gap-3 px-3 py-2.5 rounded-lg font-medium text-red-600 hover:bg-red-50 w-full transition-colors text-left">
+                <i data-lucide="log-out" class="w-5 h-5"></i>
+                Terminar Sessão
+            </button>
+        </div>
+    </aside>
+
+    <main class="flex-1 flex flex-col h-full overflow-hidden">
+        <header class="h-16 bg-white border-b border-gray-200 flex items-center justify-between px-4 sm:px-6 z-10">
+            <div class="flex items-center gap-3 md:hidden">
+                <i data-lucide="home" class="text-brand-600 w-6 h-6"></i>
+                <span class="font-bold text-lg text-brand-900">Maison Admin</span>
+            </div>
+            
+            <div class="hidden md:block">
+                <h1 id="page-title" class="text-xl font-bold text-gray-800">Meus Imóveis</h1>
+            </div>
+
+            <div class="flex items-center gap-4">
+                <button class="text-gray-400 hover:text-gray-600 relative">
+                    <i data-lucide="bell" class="w-6 h-6"></i>
+                </button>
+                <div class="flex items-center gap-3 pl-4 border-l border-gray-200">
+                    <img src="https://ui-avatars.com/api/?name=Paulo+Kapitia&background=0D8ABC&color=fff" alt="Avatar" class="w-8 h-8 rounded-full border border-gray-200">
+                    <div class="hidden sm:block text-sm">
+                        <p class="font-bold text-gray-900">Paulo Kapitia</p>
+                        <p class="text-gray-500 text-xs">Proprietário</p>
+                    </div>
+                </div>
+            </div>
+        </header>
+
+        <div class="flex-1 overflow-y-auto p-4 sm:p-6 lg:p-8 bg-gray-50">
+            
+            <div id="view-imoveis" class="fade-in block">
+                <div class="grid grid-cols-1 sm:grid-cols-3 gap-4 mb-8">
+                    <div class="bg-white rounded-xl p-5 shadow-sm border border-gray-100 flex items-center justify-between">
+                        <div>
+                            <p class="text-sm font-medium text-gray-500 mb-1">Total de Imóveis</p>
+                            <h3 id="stat-total" class="text-2xl font-bold text-gray-900">0</h3>
+                        </div>
+                        <div class="bg-blue-50 p-3 rounded-lg text-blue-600">
+                            <i data-lucide="building" class="w-6 h-6"></i>
+                        </div>
+                    </div>
+                    <div class="bg-white rounded-xl p-5 shadow-sm border border-gray-100 flex items-center justify-between">
+                        <div>
+                            <p class="text-sm font-medium text-gray-500 mb-1">Disponíveis</p>
+                            <h3 id="stat-ativos" class="text-2xl font-bold text-gray-900">0</h3>
+                        </div>
+                        <div class="bg-green-50 p-3 rounded-lg text-green-600">
+                            <i data-lucide="check-circle" class="w-6 h-6"></i>
+                        </div>
+                    </div>
+                    <div class="bg-white rounded-xl p-5 shadow-sm border border-gray-100 flex items-center justify-between">
+                        <div>
+                            <p class="text-sm font-medium text-gray-500 mb-1">Visitas Pendentes</p>
+                            <h3 id="stat-visitas" class="text-2xl font-bold text-gray-900">2</h3>
+                        </div>
+                        <div class="bg-orange-50 p-3 rounded-lg text-orange-600">
+                            <i data-lucide="clock" class="w-6 h-6"></i>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="bg-white rounded-xl shadow-sm border border-gray-100 overflow-hidden">
+                    <div class="p-5 border-b border-gray-100 flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
+                        <h2 class="text-lg font-bold text-gray-900">Meus Imóveis</h2>
+                        <button onclick="openModal()" class="bg-brand-600 hover:bg-brand-500 text-white px-4 py-2 rounded-lg font-medium transition text-sm flex items-center gap-2 shadow-sm">
+                            <i data-lucide="plus" class="w-4 h-4"></i>
+                            Adicionar Imóvel
+                        </button>
+                    </div>
+                    
+                    <div class="overflow-x-auto">
+                        <table class="w-full text-left text-sm whitespace-nowrap">
+                            <thead class="bg-gray-50 text-gray-500 font-semibold uppercase text-xs">
+                                <tr>
+                                    <th class="px-6 py-4">Propriedade</th>
+                                    <th class="px-6 py-4">Localização</th>
+                                    <th class="px-6 py-4">Preço (AOA)</th>
+                                    <th class="px-6 py-4">Status</th>
+                                    <th class="px-6 py-4 text-right">Ações</th>
+                                </tr>
+                            </thead>
+                            <tbody id="table-body-imoveis" class="divide-y divide-gray-100 text-gray-700">
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+
+            <div id="view-agendamentos" class="fade-in hidden">
+                <div class="bg-white rounded-xl shadow-sm border border-gray-100 overflow-hidden">
+                    <div class="p-5 border-b border-gray-100">
+                        <h2 class="text-lg font-bold text-gray-900">Pedidos de Visita</h2>
+                        <p class="text-sm text-gray-500">Gerencie as visitas agendadas para os seus imóveis.</p>
+                    </div>
+                    
+                    <div class="overflow-x-auto">
+                        <table class="w-full text-left text-sm whitespace-nowrap">
+                            <thead class="bg-gray-50 text-gray-500 font-semibold uppercase text-xs">
+                                <tr>
+                                    <th class="px-6 py-4">Cliente</th>
+                                    <th class="px-6 py-4">Imóvel de Interesse</th>
+                                    <th class="px-6 py-4">Data Solicitada</th>
+                                    <th class="px-6 py-4">Status</th>
+                                    <th class="px-6 py-4 text-right">Resposta</th>
+                                </tr>
+                            </thead>
+                            <tbody id="table-body-agendamentos" class="divide-y divide-gray-100 text-gray-700">
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+
+        </div>
+    </main>
+
+    <div id="add-modal" class="fixed inset-0 z-50 hidden" aria-labelledby="modal-title" role="dialog" aria-modal="true">
+        <div class="fixed inset-0 bg-gray-900 bg-opacity-75 transition-opacity backdrop-blur-sm" onclick="closeModal()"></div>
+        <div class="fixed inset-0 z-10 overflow-y-auto">
+            <div class="flex min-h-full items-end justify-center p-4 text-center sm:items-center sm:p-0">
+                <div class="relative transform overflow-hidden rounded-2xl bg-white text-left shadow-xl transition-all sm:my-8 sm:w-full sm:max-w-2xl fade-in">
+                    
+                    <div class="px-6 py-4 border-b border-gray-100 flex justify-between items-center bg-gray-50">
+                        <h3 class="text-lg font-bold text-gray-900">Adicionar Novo Imóvel</h3>
+                        <button type="button" class="text-gray-400 hover:text-gray-500" onclick="closeModal()">
+                            <i data-lucide="x" class="w-5 h-5"></i>
+                        </button>
+                    </div>
+
+                    <form id="form-add-imovel" class="p-6">
+                        <div class="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4">
+                            <div class="md:col-span-2">
+                                <label class="block text-sm font-semibold text-gray-700 mb-1">Título do Anúncio</label>
+                                <input type="text" id="add-titulo" required class="w-full bg-white border border-gray-200 text-gray-900 py-2 px-3 rounded-lg focus:outline-none focus:ring-2 focus:ring-brand-500">
+                            </div>
+                            
+                            <div>
+                                <label class="block text-sm font-semibold text-gray-700 mb-1">Tipo de Imóvel</label>
+                                <select id="add-tipo" required class="w-full bg-white border border-gray-200 text-gray-900 py-2 px-3 rounded-lg focus:outline-none focus:ring-2 focus:ring-brand-500">
+                                    <option value="Vivenda">Vivenda</option>
+                                    <option value="Apartamento">Apartamento</option>
+                                    <option value="Terreno">Terreno</option>
+                                </select>
+                            </div>
+
+                            <div>
+                                <label class="block text-sm font-semibold text-gray-700 mb-1">Localização</label>
+                                <select id="add-local" required class="w-full bg-white border border-gray-200 text-gray-900 py-2 px-3 rounded-lg focus:outline-none focus:ring-2 focus:ring-brand-500">
+                                    <option value="Centro">Centro da Cidade</option>
+                                    <option value="Cidade Alta">Cidade Alta</option>
+                                    <option value="São João">São João</option>
+                                    <option value="Benfica">Benfica</option>
+                                </select>
+                            </div>
+
+                            <div>
+                                <label class="block text-sm font-semibold text-gray-700 mb-1">Preço (Kwanza)</label>
+                                <input type="number" id="add-preco" required min="0" class="w-full bg-white border border-gray-200 text-gray-900 py-2 px-3 rounded-lg focus:outline-none focus:ring-2 focus:ring-brand-500">
+                            </div>
+
+                            <div class="flex gap-4">
+                                <div class="w-1/2">
+                                    <label class="block text-sm font-semibold text-gray-700 mb-1">Quartos</label>
+                                    <input type="number" id="add-quartos" value="0" min="0" class="w-full bg-white border border-gray-200 text-gray-900 py-2 px-3 rounded-lg focus:outline-none focus:ring-2 focus:ring-brand-500">
+                                </div>
+                                <div class="w-1/2">
+                                    <label class="block text-sm font-semibold text-gray-700 mb-1">WC</label>
+                                    <input type="number" id="add-wc" value="0" min="0" class="w-full bg-white border border-gray-200 text-gray-900 py-2 px-3 rounded-lg focus:outline-none focus:ring-2 focus:ring-brand-500">
+                                </div>
+                            </div>
+
+                            <div class="md:col-span-2">
+                                <label class="block text-sm font-semibold text-gray-700 mb-1">URL da Imagem Principal</label>
+                                <input type="url" id="add-img" required placeholder="https://..." class="w-full bg-white border border-gray-200 text-gray-900 py-2 px-3 rounded-lg focus:outline-none focus:ring-2 focus:ring-brand-500">
+                            </div>
+                        </div>
+
+                        <div class="pt-4 flex justify-end gap-3 border-t border-gray-100">
+                            <button type="button" onclick="closeModal()" class="px-4 py-2 text-gray-600 font-medium hover:bg-gray-100 rounded-lg transition">Cancelar</button>
+                            <button type="submit" class="bg-brand-600 hover:bg-brand-500 text-white px-6 py-2 rounded-lg font-medium transition shadow-md">Guardar Imóvel</button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div id="toast-container" class="fixed bottom-4 right-4 z-50 flex flex-col gap-2"></div>
+
+    <script>
+        lucide.createIcons();
+
+        // ==========================================
+        // ÁREA: DADOS E ESTADO GLOBAL
+        // ==========================================
+        // 'currentTab' controla qual aba está ativa ('imoveis' ou 'agendamentos')
+        let currentTab = 'imoveis';
+
+        let imoveisData = [
+            { id: 'imv-001', titulo: 'Vivenda T4 de Luxo', tipo: 'Vivenda', preco: 85000000, localizacao: 'Cidade Alta', imagem: 'https://images.unsplash.com/photo-1600596542815-ffad4c1539a9?auto=format&fit=crop&w=800&q=80', status: 'Disponível' },
+            { id: 'imv-002', titulo: 'Apartamento T2 Central', tipo: 'Apartamento', preco: 25000000, localizacao: 'Centro', imagem: 'https://images.unsplash.com/photo-1522708323590-d24dbb6b0267?auto=format&fit=crop&w=800&q=80', status: 'Disponível' },
+            { id: 'imv-003', titulo: 'Terreno Bem Localizado', tipo: 'Terreno', preco: 12000000, localizacao: 'Benfica', imagem: 'https://images.unsplash.com/photo-1500382017468-9049fed747ef?auto=format&fit=crop&w=800&q=80', status: 'Disponível' },
+            { id: 'imv-005', titulo: 'Apartamento T3 Moderno', tipo: 'Apartamento', preco: 55000000, localizacao: 'Cidade Alta', imagem: 'https://images.unsplash.com/photo-1502672260266-1c1e5250ad99?auto=format&fit=crop&w=800&q=80', status: 'Vendido' }
+        ];
+
+        let agendamentosData = [
+            { id: 'agd-001', cliente: 'João Silva', telefone: '923 456 789', imovelTitulo: 'Vivenda T4 de Luxo', data: '2026-04-10', status: 'Pendente' },
+            { id: 'agd-002', cliente: 'Maria Costa', telefone: '912 345 678', imovelTitulo: 'Apartamento T2 Central', data: '2026-04-12', status: 'Pendente' },
+            { id: 'agd-003', cliente: 'Carlos Pinto', telefone: '999 123 456', imovelTitulo: 'Apartamento T3 Moderno', data: '2026-04-05', status: 'Confirmado' }
+        ];
+
+        // ==========================================
+        // ÁREA: FUNÇÕES UTILITÁRIAS
+        // ==========================================
+        // Formatador de Moeda (Kwanza) - Usa API Intl do navegador
+        // Formata valores numéricos para o padrão monetário de Angola (AOA)
+        const formatCurrency = (value) => new Intl.NumberFormat('pt-AO', { style: 'currency', currency: 'AOA', minimumFractionDigits: 0 }).format(value);
+
+        // ==========================================
+        // ÁREA: RENDERIZAÇÃO DO DASHBOARD
+        // ==========================================
+        // Função principal que atualiza todas as tabelas e estatísticas
+        // Chama renderImoveis() e renderCorretores() e recria ícones
+        function renderDashboard() {
+            document.getElementById('stat-total').textContent = imoveisData.length;
+            document.getElementById('stat-ativos').textContent = imoveisData.filter(i => i.status === 'Disponível').length;
+            document.getElementById('stat-visitas').textContent = agendamentosData.filter(a => a.status === 'Pendente').length;
+
+            const tbodyImoveis = document.getElementById('table-body-imoveis');
+            tbodyImoveis.innerHTML = '';
+            imoveisData.forEach(imovel => {
+                const statusBadge = imovel.status === 'Disponível' 
+                    ? '<span class="bg-green-100 text-green-700 px-2 py-1 rounded text-xs font-bold uppercase tracking-wider">Disponível</span>'
+                    : '<span class="bg-gray-200 text-gray-700 px-2 py-1 rounded text-xs font-bold uppercase tracking-wider">Vendido</span>';
+
+                tbodyImoveis.innerHTML += `
+                    <tr class="hover:bg-gray-50 transition">
+                        <td class="px-6 py-4 flex items-center gap-3">
+                            <img src="${imovel.imagem}" class="w-10 h-10 rounded-lg object-cover border border-gray-200">
+                            <div>
+                                <p class="font-bold text-gray-900">${imovel.titulo}</p>
+                                <p class="text-xs text-gray-500">${imovel.tipo}</p>
+                            </div>
+                        </td>
+                        <td class="px-6 py-4 text-gray-600">${imovel.localizacao}</td>
+                        <td class="px-6 py-4 font-semibold text-gray-900">${formatCurrency(imovel.preco)}</td>
+                        <td class="px-6 py-4">${statusBadge}</td>
+                        <td class="px-6 py-4 text-right">
+                            <button onclick="showToast('Modo de edição em desenvolvimento', 'info')" class="text-blue-600 hover:text-blue-800 p-1"><i data-lucide="edit-3" class="w-4 h-4"></i></button>
+                            <button onclick="deleteImovel('${imovel.id}')" class="text-red-500 hover:text-red-700 p-1 ml-2"><i data-lucide="trash-2" class="w-4 h-4"></i></button>
+                        </td>
+                    </tr>
+                `;
+            });
+
+            const tbodyAgendamentos = document.getElementById('table-body-agendamentos');
+            tbodyAgendamentos.innerHTML = '';
+            agendamentosData.forEach(agd => {
+                let statusBadge, actions;
+                
+                if (agd.status === 'Pendente') {
+                    statusBadge = '<span class="bg-orange-100 text-orange-700 px-2 py-1 rounded text-xs font-bold uppercase">Pendente</span>';
+                    actions = `
+                        <button onclick="updateAgendamento('${agd.id}', 'Confirmado')" class="text-green-600 hover:bg-green-50 p-1.5 rounded transition" title="Aprovar"><i data-lucide="check" class="w-4 h-4"></i></button>
+                        <button onclick="updateAgendamento('${agd.id}', 'Cancelado')" class="text-red-500 hover:bg-red-50 p-1.5 rounded transition ml-1" title="Rejeitar"><i data-lucide="x" class="w-4 h-4"></i></button>
+                    `;
+                } else if (agd.status === 'Confirmado') {
+                    statusBadge = '<span class="bg-green-100 text-green-700 px-2 py-1 rounded text-xs font-bold uppercase">Confirmado</span>';
+                    actions = '<span class="text-xs text-gray-400">Tratado</span>';
+                } else {
+                    statusBadge = '<span class="bg-red-100 text-red-700 px-2 py-1 rounded text-xs font-bold uppercase">Cancelado</span>';
+                    actions = '<span class="text-xs text-gray-400">Tratado</span>';
+                }
+
+                tbodyAgendamentos.innerHTML += `
+                    <tr class="hover:bg-gray-50 transition">
+                        <td class="px-6 py-4">
+                            <p class="font-bold text-gray-900">${agd.cliente}</p>
+                            <p class="text-xs text-gray-500 flex items-center gap-1"><i data-lucide="phone" class="w-3 h-3"></i> ${agd.telefone}</p>
+                        </td>
+                        <td class="px-6 py-4 text-gray-600">${agd.imovelTitulo}</td>
+                        <td class="px-6 py-4 font-medium text-gray-800">${agd.data}</td>
+                        <td class="px-6 py-4">${statusBadge}</td>
+                        <td class="px-6 py-4 text-right flex justify-end items-center h-full pt-6">${actions}</td>
+                    </tr>
+                `;
+            });
+
+            lucide.createIcons();
+        }
+
+        // ==========================================
+        // ÁREA: AÇÕES CRUD (CREATE, READ, UPDATE, DELETE)
+        // ==========================================
+        // Remove um imóvel da lista (simulação - em produção seria: DELETE /api/properties/:id)
+        function deleteImovel(id) {
+            imoveisData = imoveisData.filter(i => i.id !== id);
+            renderDashboard();
+            showToast('Imóvel removido com sucesso!', 'success');
+        }
+
+        // Atualiza o status de um agendamento (Aprovar/Rejeitar)
+        // Em produção seria: PATCH /api/appointments/:id/status
+        function updateAgendamento(id, novoStatus) {
+            const agd = agendamentosData.find(a => a.id === id);
+            if(agd) {
+                agd.status = novoStatus;
+                renderDashboard();
+                showToast(`Agendamento ${novoStatus.toLowerCase()}!`, novoStatus === 'Confirmado' ? 'success' : 'info');
+            }
+        }
+
+        // Processa o formulário de adicionar novo imóvel
+        // Cria objeto com dados do formulário e adiciona ao início da lista
+        // Fecha modal e mostra toast de sucesso
+        document.getElementById('form-add-imovel').addEventListener('submit', (e) => {
+            e.preventDefault();
+            const novo = {
+                id: 'imv-' + Math.floor(Math.random() * 1000),
+                titulo: document.getElementById('add-titulo').value,
+                tipo: document.getElementById('add-tipo').value,
+                preco: parseFloat(document.getElementById('add-preco').value),
+                localizacao: document.getElementById('add-local').value,
+                imagem: document.getElementById('add-img').value,
+                status: 'Disponível'
+            };
+            imoveisData.unshift(novo);
+            closeModal();
+            renderDashboard();
+            showToast('Imóvel adicionado com sucesso ao catálogo.', 'success');
+        });
+
+        // ==========================================
+        // ÁREA: NAVEGAÇÃO ENTRE ABAS
+        // ==========================================
+        // Alterna entre as abas "Meus Imóveis" e "Pedidos de Visita"
+        // Esconde/mostra views e atualiza estilos dos botões da sidebar
+        function switchTab(tab) {
+            currentTab = tab;
+            
+            document.getElementById('view-imoveis').classList.toggle('hidden', tab !== 'imoveis');
+            document.getElementById('view-agendamentos').classList.toggle('hidden', tab !== 'agendamentos');
+            
+            const btnImoveis = document.getElementById('tab-btn-imoveis');
+            const btnAgendamentos = document.getElementById('tab-btn-agendamentos');
+            
+            if(tab === 'imoveis') {
+                document.getElementById('page-title').textContent = "Meus Imóveis";
+                btnImoveis.className = "flex items-center gap-3 px-3 py-2.5 rounded-lg font-medium transition-colors bg-brand-50 text-brand-600 w-full text-left";
+                btnAgendamentos.className = "flex items-center gap-3 px-3 py-2.5 rounded-lg font-medium transition-colors text-gray-600 hover:bg-gray-50 w-full text-left";
+            } else {
+                document.getElementById('page-title').textContent = "Pedidos de Visita";
+                btnAgendamentos.className = "flex items-center gap-3 px-3 py-2.5 rounded-lg font-medium transition-colors bg-brand-50 text-brand-600 w-full text-left";
+                btnImoveis.className = "flex items-center gap-3 px-3 py-2.5 rounded-lg font-medium transition-colors text-gray-600 hover:bg-gray-50 w-full text-left";
+            }
+        }
+
+        const modal = document.getElementById('add-modal');
+        // ==========================================
+        // ÁREA: GESTÃO DE MODAIS (JANELAS POP-UP)
+        // ==========================================
+        // Abre modal para adicionar novo imóvel
+        // Reseta formulário e impede scroll do body
+        function openModal() {
+            document.getElementById('form-add-imovel').reset();
+            modal.classList.remove('hidden');
+            document.body.classList.add('modal-open');
+        }
+        // Fecha modal e libera scroll do body
+        function closeModal() {
+            modal.classList.add('hidden');
+            document.body.classList.remove('modal-open');
+        }
+
+        // ==========================================
+        // ÁREA: SISTEMA DE NOTIFICAÇÕES (TOASTS)
+        // ==========================================
+        // Mostra notificação temporária (verde para sucesso, azul para info)
+        // Auto-remove após 4 segundos com animação
+        function showToast(message, type = 'success') {
+            const container = document.getElementById('toast-container');
+            const toast = document.createElement('div');
+            const bgColor = type === 'success' ? 'bg-green-600' : 'bg-blue-600';
+            const icon = type === 'success' ? 'check-circle' : 'info';
+
+            toast.className = `${bgColor} text-white px-4 py-3 rounded-lg shadow-lg flex items-center gap-3 transform transition-all duration-300 translate-y-10 opacity-0`;
+            toast.innerHTML = `<i data-lucide="${icon}" class="w-5 h-5 flex-shrink-0"></i><p class="text-sm font-medium">${message}</p>`;
+
+            container.appendChild(toast);
+            lucide.createIcons();
+
+            requestAnimationFrame(() => {
+                toast.classList.remove('translate-y-10', 'opacity-0');
+            });
+
+            setTimeout(() => {
+                toast.classList.add('opacity-0', 'translate-x-10');
+                setTimeout(() => toast.remove(), 300);
+            }, 4000);
+        }
+
+        // ==========================================
+        // ÁREA: INICIALIZAÇÃO DA APLICAÇÃO
+        // ==========================================
+        // Quando a página carrega, renderiza o dashboard inicial
+        window.addEventListener('DOMContentLoaded', renderDashboard);
+    </script>
+</body>
+</html>

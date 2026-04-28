@@ -1,36 +1,670 @@
 <!DOCTYPE html>
-<html lang="pt-BR">
+<html lang="pt-PT">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Maison Huambo - Imobiliária</title>
-  <link rel="stylesheet" href="css/style.css">
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>Maison Huambo | Imobiliária</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://unpkg.com/lucide@latest"></script>
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        brand: {
+                            50: '#f0fdfa',
+                            100: '#ccfbf1',
+                            500: '#14b8a6',
+                            600: '#0d9488',
+                            900: '#134e4a',
+                        }
+                    },
+                    fontFamily: {
+                        sans: ['Inter', 'ui-sans-serif', 'system-ui', 'sans-serif'],
+                    }
+                }
+            }
+        }
+    </script>
+    <style>
+        .fade-in { animation: fadeIn 0.3s ease-in-out; }
+        @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
+        .modal-open { overflow: hidden; }
+        .no-scrollbar::-webkit-scrollbar { display: none; }
+        .no-scrollbar { -ms-overflow-style: none; scrollbar-width: none; }
+    </style>
 </head>
-<body>
-  <header>
-    <h1>Maison Huambo</h1>
-    <nav>
-      <a href="#home">Início</a>
-      <a href="#properties">Imóveis</a>
-      <a href="#contact">Contato</a>
+<body class="bg-gray-50 text-gray-800 font-sans antialiased flex flex-col min-h-screen">
+
+    <nav class="bg-white shadow-sm sticky top-0 z-40">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="flex justify-between h-16 items-center">
+                <div class="flex items-center gap-2 cursor-pointer" onclick="window.scrollTo(0,0)">
+                    <i data-lucide="home" class="text-brand-600 w-8 h-8"></i>
+                    <span class="font-bold text-xl tracking-tight text-brand-900">Maison Huambo</span>
+                </div>
+                <div class="hidden md:flex space-x-8 items-center">
+                    <a href="#" class="text-gray-600 hover:text-brand-600 font-medium transition">Início</a>
+                    <a href="#catalogo" class="text-gray-600 hover:text-brand-600 font-medium transition">Imóveis</a>
+                    <a href="#" class="text-gray-600 hover:text-brand-600 font-medium transition">Sobre Nós</a>
+                </div>
+                <div class="flex items-center">
+                    <button onclick="showToast('Área de Corretores em desenvolvimento!', 'info')" class="flex items-center gap-2 bg-brand-50 text-brand-600 border border-brand-200 hover:bg-brand-100 px-4 py-2 rounded-lg font-medium transition">
+                        <i data-lucide="lock" class="w-4 h-4"></i>
+                        <span class="hidden sm:inline">Corretor</span>
+                    </button>
+                </div>
+            </div>
+        </div>
     </nav>
-  </header>
 
-  <main>
-    <section id="hero">
-      <h2>Encontre o imóvel dos seus sonhos</h2>
-    </section>
+    <header class="relative bg-brand-900 py-20 lg:py-32 overflow-hidden">
+        <div class="absolute inset-0 opacity-20">
+            <img src="https://images.unsplash.com/photo-1600596542815-ffad4c1539a9?auto=format&fit=crop&w=1920&q=80" alt="Fundo Imobiliário" class="w-full h-full object-cover" onerror="this.style.display='none'">
+        </div>
+        <div class="absolute inset-0 bg-gradient-to-t from-brand-900 via-brand-900/80 to-transparent"></div>
+        
+        <div class="relative max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
+            <h1 class="text-4xl md:text-5xl lg:text-6xl font-extrabold text-white tracking-tight mb-6">
+                Encontre o seu novo lar no <span class="text-brand-500">Huambo</span>
+            </h1>
+            <p class="text-xl text-gray-300 max-w-2xl mx-auto mb-10">
+                A plataforma mais segura e rápida para comprar, arrendar ou agendar visitas a propriedades incríveis.
+            </p>
 
-    <section id="properties">
-      <h3>Imóveis Disponíveis</h3>
-      <div id="properties-list"></div>
-    </section>
-  </main>
+            <div class="bg-white p-4 rounded-2xl shadow-xl max-w-4xl mx-auto fade-in">
+                <form id="search-form" class="grid grid-cols-1 md:grid-cols-4 gap-4">
+                    <div class="relative">
+                        <label class="block text-xs font-semibold text-gray-500 uppercase tracking-wider mb-1">Localização</label>
+                        <select id="filter-location" class="w-full bg-gray-50 border border-gray-200 text-gray-700 py-2 px-3 rounded-lg focus:outline-none focus:ring-2 focus:ring-brand-500 focus:border-transparent">
+                            <option value="">Todas as áreas</option>
+                            <option value="Centro">Centro da Cidade</option>
+                            <option value="Cidade Alta">Cidade Alta</option>
+                            <option value="São João">São João</option>
+                            <option value="Benfica">Benfica</option>
+                        </select>
+                    </div>
+                    <div class="relative">
+                        <label class="block text-xs font-semibold text-gray-500 uppercase tracking-wider mb-1">Tipo</label>
+                        <select id="filter-type" class="w-full bg-gray-50 border border-gray-200 text-gray-700 py-2 px-3 rounded-lg focus:outline-none focus:ring-2 focus:ring-brand-500 focus:border-transparent">
+                            <option value="">Todos os tipos</option>
+                            <option value="Vivenda">Vivenda</option>
+                            <option value="Apartamento">Apartamento</option>
+                            <option value="Terreno">Terreno</option>
+                        </select>
+                    </div>
+                    <div class="relative">
+                        <label class="block text-xs font-semibold text-gray-500 uppercase tracking-wider mb-1">Preço Máximo</label>
+                        <select id="filter-price" class="w-full bg-gray-50 border border-gray-200 text-gray-700 py-2 px-3 rounded-lg focus:outline-none focus:ring-2 focus:ring-brand-500 focus:border-transparent">
+                            <option value="9999999999">Sem limite</option>
+                            <option value="15000000">Até 15.000.000 Kz</option>
+                            <option value="30000000">Até 30.000.000 Kz</option>
+                            <option value="60000000">Até 60.000.000 Kz</option>
+                            <option value="100000000">Até 100.000.000 Kz</option>
+                        </select>
+                    </div>
+                    <div class="flex items-end">
+                        <button type="submit" class="w-full bg-brand-600 hover:bg-brand-500 text-white font-bold py-2.5 px-4 rounded-lg transition shadow-md flex items-center justify-center gap-2">
+                            <i data-lucide="search" class="w-5 h-5"></i>
+                            Pesquisar
+                        </button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </header>
 
-  <footer>
-    <p>&copy; 2026 Maison Huambo</p>
-  </footer>
+    <main id="catalogo" class="flex-grow max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12 w-full">
+        <div class="flex justify-between items-end mb-8">
+            <div>
+                <h2 class="text-3xl font-bold text-gray-900">Imóveis em Destaque</h2>
+                <p class="text-gray-500 mt-2">Explore as melhores opções selecionadas para si.</p>
+            </div>
+            <div id="results-count" class="text-sm font-medium text-brand-600 bg-brand-50 px-3 py-1 rounded-full hidden md:block">
+            </div>
+        </div>
 
-  <script src="js/main.js"></script>
+        <div id="properties-grid" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
+        </div>
+
+        <div id="empty-state" class="hidden flex flex-col items-center justify-center py-20 text-center">
+            <div class="bg-gray-100 p-6 rounded-full mb-4">
+                <i data-lucide="search-x" class="w-12 h-12 text-gray-400"></i>
+            </div>
+            <h3 class="text-xl font-bold text-gray-900 mb-2">Nenhum imóvel encontrado</h3>
+            <p class="text-gray-500">Tente ajustar os seus filtros de pesquisa para ver mais resultados.</p>
+            <button onclick="resetFilters()" class="mt-4 text-brand-600 font-medium hover:underline">Limpar filtros</button>
+        </div>
+    </main>
+
+    <footer class="bg-white border-t border-gray-200 mt-auto">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+            <div class="md:flex md:items-center md:justify-between">
+                <div class="flex justify-center md:justify-start mb-6 md:mb-0">
+                    <span class="text-xl font-bold text-brand-900">Maison Huambo</span>
+                </div>
+                <p class="mt-8 text-base text-gray-400 md:mt-0 md:order-1 text-center">
+                    &copy; 2026 Projeto Académico - Programação Web. Todos os direitos reservados.
+                </p>
+            </div>
+        </div>
+    </footer>
+
+    <div id="property-modal" class="fixed inset-0 z-50 hidden" aria-labelledby="modal-title" role="dialog" aria-modal="true">
+        <div class="fixed inset-0 bg-gray-900 bg-opacity-75 transition-opacity backdrop-blur-sm" onclick="closeModal()"></div>
+
+        <div class="fixed inset-0 z-10 overflow-y-auto">
+            <div class="flex min-h-full items-end justify-center p-4 text-center sm:items-center sm:p-0">
+                <div class="relative transform overflow-hidden rounded-2xl bg-white text-left shadow-xl transition-all sm:my-8 sm:w-full sm:max-w-3xl fade-in flex flex-col md:flex-row">
+                    
+                    <div class="md:w-1/2 flex flex-col relative bg-gray-50 border-r border-gray-200">
+                        <div class="relative h-64 md:h-80 w-full flex-shrink-0">
+                            <img id="modal-img" src="" alt="Property" class="w-full h-full object-cover transition-opacity duration-300">
+                            <div class="absolute top-4 left-4 bg-brand-500 text-white text-xs font-bold px-3 py-1 rounded-full uppercase tracking-wide shadow-md">
+                                <span id="modal-status"></span>
+                            </div>
+                        </div>
+                        
+                        <div id="modal-thumbnails" class="flex gap-3 p-4 overflow-x-auto no-scrollbar bg-white h-28 items-center justify-start border-t border-gray-100">
+                        </div>
+
+                        <div class="p-4 bg-gray-50 mt-auto border-t border-gray-200">
+                            <p class="text-[11px] font-bold text-gray-500 uppercase tracking-widest mb-3 text-center md:text-left">Contactar o Corretor</p>
+                            <div class="flex gap-2">
+                                <a href="#" onclick="showToast('A abrir o WhatsApp...', 'info'); return false;" class="flex-1 flex items-center justify-center gap-1.5 bg-[#25D366] hover:bg-[#1ebd5b] text-white py-2 px-2 rounded-lg text-sm font-medium transition shadow-sm" title="WhatsApp">
+                                    <svg class="w-4 h-4 fill-current" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.149-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421 7.403h-.004a9.87 9.87 0 01-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 01-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.825 9.825 0 012.893 6.994c-.003 5.45-4.437 9.884-9.885 9.884m8.413-18.297A11.815 11.815 0 0012.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.142 1.588 5.945L.057 24l6.305-1.654a11.882 11.882 0 005.683 1.448h.005c6.554 0 11.89-5.335 11.893-11.893a11.821 11.821 0 00-3.48-8.413Z"/></svg>
+                                    <span class="hidden sm:inline">WhatsApp</span>
+                                </a>
+                                <a href="#" onclick="showToast('A iniciar chamada telefónica...', 'info'); return false;" class="flex-1 flex items-center justify-center gap-1.5 bg-white hover:bg-gray-100 text-gray-800 border border-gray-200 py-2 px-2 rounded-lg text-sm font-medium transition shadow-sm" title="Ligar">
+                                    <i data-lucide="phone" class="w-4 h-4 text-brand-600"></i>
+                                    <span class="hidden sm:inline">Ligar</span>
+                                </a>
+                                <a href="#" onclick="showToast('A compor o email...', 'info'); return false;" class="flex-1 flex items-center justify-center gap-1.5 bg-white hover:bg-gray-100 text-gray-800 border border-gray-200 py-2 px-2 rounded-lg text-sm font-medium transition shadow-sm" title="Email">
+                                    <i data-lucide="mail" class="w-4 h-4 text-brand-600"></i>
+                                    <span class="hidden sm:inline">Email</span>
+                                </a>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="md:w-1/2 p-6 md:p-8 flex flex-col justify-between">
+                        <div>
+                            <div class="flex justify-between items-start">
+                                <div>
+                                    <p id="modal-type" class="text-sm font-semibold text-brand-600 uppercase tracking-wider mb-1"></p>
+                                    <h3 id="modal-title" class="text-2xl font-bold text-gray-900 leading-tight mb-2"></h3>
+                                </div>
+                                <button type="button" class="text-gray-400 hover:text-gray-500 focus:outline-none" onclick="closeModal()">
+                                    <i data-lucide="x" class="w-6 h-6"></i>
+                                </button>
+                            </div>
+                            
+                            <p id="modal-location" class="text-gray-500 flex items-center gap-1 mb-4">
+                                <i data-lucide="map-pin" class="w-4 h-4"></i>
+                                <span></span>
+                            </p>
+                            
+                            <div class="text-3xl font-extrabold text-gray-900 mb-6" id="modal-price"></div>
+                            
+                            <div class="flex gap-6 mb-6 pb-6 border-b border-gray-100">
+                                <div class="flex items-center gap-2 text-gray-700">
+                                    <i data-lucide="bed-double" class="w-5 h-5 text-gray-400"></i>
+                                    <span id="modal-beds" class="font-medium"></span>
+                                </div>
+                                <div class="flex items-center gap-2 text-gray-700">
+                                    <i data-lucide="bath" class="w-5 h-5 text-gray-400"></i>
+                                    <span id="modal-baths" class="font-medium"></span>
+                                </div>
+                            </div>
+                            
+                            <p id="modal-desc" class="text-gray-600 text-sm mb-6 leading-relaxed"></p>
+                        </div>
+
+                        <div class="bg-gray-50 p-4 rounded-xl border border-gray-100">
+                            <h4 class="font-bold text-gray-900 mb-3 text-sm flex items-center gap-2">
+                                <i data-lucide="calendar-clock" class="w-4 h-4 text-brand-600"></i>
+                                Solicitar Visita
+                            </h4>
+                            <form id="visit-form" class="space-y-3">
+                                <input type="hidden" id="visit-property-id">
+                                <div>
+                                    <input type="text" id="visit-name" required placeholder="O seu Nome" class="w-full text-sm bg-white border border-gray-200 text-gray-900 py-2 px-3 rounded-lg focus:outline-none focus:ring-2 focus:ring-brand-500 focus:border-transparent">
+                                </div>
+                                <div class="grid grid-cols-2 gap-3">
+                                    <input type="tel" id="visit-phone" required placeholder="Telefone" class="w-full text-sm bg-white border border-gray-200 text-gray-900 py-2 px-3 rounded-lg focus:outline-none focus:ring-2 focus:ring-brand-500 focus:border-transparent">
+                                    <input type="date" id="visit-date" required class="w-full text-sm bg-white border border-gray-200 text-gray-900 py-2 px-3 rounded-lg focus:outline-none focus:ring-2 focus:ring-brand-500 focus:border-transparent">
+                                </div>
+                                <button type="submit" class="w-full bg-gray-900 hover:bg-black text-white font-bold py-2.5 px-4 rounded-lg transition shadow-md text-sm">
+                                    Confirmar Pedido
+                                </button>
+                            </form>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div id="toast-container" class="fixed bottom-4 right-4 z-50 flex flex-col gap-2"></div>
+
+    <script>
+        lucide.createIcons();
+
+        // ===========================================
+        // ÁREA: DADOS E CONFIGURAÇÕES INICIAIS
+        // ===========================================
+        // Dados simulados (Mock Data) que viriam da BD MySQL através da API Node.js
+        // Em produção, seria: fetch('/api/properties').then(...)
+        // Cada objeto representa um imóvel com titulo, descricao, tipo, preco, etc.
+        const imoveis = [
+            {
+                id: 'imv-001',
+                titulo: 'Vivenda T4 de Luxo',
+                descricao: 'Magnífica vivenda com acabamentos modernos, quintal amplo, garagem para 2 carros e suíte master. Ideal para famílias grandes que procuram conforto.',
+                tipo: 'Vivenda',
+                preco: 85000000,
+                quartos: 4,
+                casasBanho: 3,
+                localizacao: 'Cidade Alta',
+                imagem: 'https://images.unsplash.com/photo-1600596542815-ffad4c1539a9?auto=format&fit=crop&w=800&q=80',
+                galeria: [
+                    { url: 'https://images.unsplash.com/photo-1600596542815-ffad4c1539a9?auto=format&fit=crop&w=800&q=80', nome: 'Fachada' },
+                    { url: 'https://images.unsplash.com/photo-1600607687920-4e2a09cf159d?auto=format&fit=crop&w=800&q=80', nome: 'Sala de Estar' },
+                    { url: 'https://images.unsplash.com/photo-1522771731478-4ea167ee6010?auto=format&fit=crop&w=800&q=80', nome: 'Quarto Principal' },
+                    { url: 'https://images.unsplash.com/photo-1584622650111-993a426fbf0a?auto=format&fit=crop&w=800&q=80', nome: 'Casa de Banho' }
+                ],
+                status: 'Disponível'
+            },
+            {
+                id: 'imv-002',
+                titulo: 'Apartamento T2 Central',
+                descricao: 'Apartamento recém-remodelado no centro do Huambo. Cozinha equipada, varanda com vista para a cidade e prédio com segurança 24h.',
+                tipo: 'Apartamento',
+                preco: 25000000,
+                quartos: 2,
+                casasBanho: 1,
+                localizacao: 'Centro',
+                imagem: 'https://images.unsplash.com/photo-1522708323590-d24dbb6b0267?auto=format&fit=crop&w=800&q=80',
+                galeria: [
+                    { url: 'https://images.unsplash.com/photo-1522708323590-d24dbb6b0267?auto=format&fit=crop&w=800&q=80', nome: 'Quarto' },
+                    { url: 'https://images.unsplash.com/photo-1560448204-e02f11c3d0e2?auto=format&fit=crop&w=800&q=80', nome: 'Cozinha' },
+                    { url: 'https://images.unsplash.com/photo-1484154218962-a197022b5858?auto=format&fit=crop&w=800&q=80', nome: 'Sala' }
+                ],
+                status: 'Disponível'
+            },
+            {
+                id: 'imv-003',
+                titulo: 'Terreno Bem Localizado',
+                descricao: 'Lote de terreno murado com 20x30m, localizado em zona de expansão pacífica. Documentação completa e pronta para construção.',
+                tipo: 'Terreno',
+                preco: 12000000,
+                quartos: 0,
+                casasBanho: 0,
+                localizacao: 'Benfica',
+                imagem: 'https://images.unsplash.com/photo-1500382017468-9049fed747ef?auto=format&fit=crop&w=800&q=80',
+                galeria: [
+                    { url: 'https://images.unsplash.com/photo-1500382017468-9049fed747ef?auto=format&fit=crop&w=800&q=80', nome: 'Vista Frontal' },
+                    { url: 'https://images.unsplash.com/photo-1621294866578-8316dfebf65e?auto=format&fit=crop&w=800&q=80', nome: 'Rua de Acesso' }
+                ],
+                status: 'Disponível'
+            },
+            {
+                id: 'imv-004',
+                titulo: 'Vivenda T3 Aconchegante',
+                descricao: 'Vivenda rústica mas conservada, com anexo e tanque de água de 10.000L. Próxima a escolas e supermercados.',
+                tipo: 'Vivenda',
+                preco: 45000000,
+                quartos: 3,
+                casasBanho: 2,
+                localizacao: 'São João',
+                imagem: 'https://images.unsplash.com/photo-1564013799919-ab600027ffc6?auto=format&fit=crop&w=800&q=80',
+                galeria: [
+                    { url: 'https://images.unsplash.com/photo-1564013799919-ab600027ffc6?auto=format&fit=crop&w=800&q=80', nome: 'Fachada' },
+                    { url: 'https://images.unsplash.com/photo-1502672260266-1c1e5250ad99?auto=format&fit=crop&w=800&q=80', nome: 'Sala Térrea' },
+                    { url: 'https://images.unsplash.com/photo-1600566753190-17f0baa2a6c3?auto=format&fit=crop&w=800&q=80', nome: 'Corredor' }
+                ],
+                status: 'Disponível'
+            },
+            {
+                id: 'imv-005',
+                titulo: 'Apartamento T3 Moderno',
+                descricao: 'Espaçoso T3 no 2º andar, condomínio fechado com piscina e área de lazer. Sala de estar ampla com muita luz natural.',
+                tipo: 'Apartamento',
+                preco: 55000000,
+                quartos: 3,
+                casasBanho: 2,
+                localizacao: 'Cidade Alta',
+                imagem: 'https://images.unsplash.com/photo-1502672260266-1c1e5250ad99?auto=format&fit=crop&w=800&q=80',
+                galeria: [
+                    { url: 'https://images.unsplash.com/photo-1502672260266-1c1e5250ad99?auto=format&fit=crop&w=800&q=80', nome: 'Sala e Cozinha' }
+                ],
+                status: 'Vendido'
+            },
+            {
+                id: 'imv-006',
+                titulo: 'Vivenda T5 Espaçosa',
+                descricao: 'Propriedade de alto padrão com dois pisos, jardim de inverno, churrasqueira e sistema de segurança integrado.',
+                tipo: 'Vivenda',
+                preco: 120000000,
+                quartos: 5,
+                casasBanho: 4,
+                localizacao: 'Centro',
+                imagem: 'https://images.unsplash.com/photo-1512917774080-9991f1c4c750?auto=format&fit=crop&w=800&q=80',
+                galeria: [
+                    { url: 'https://images.unsplash.com/photo-1512917774080-9991f1c4c750?auto=format&fit=crop&w=800&q=80', nome: 'Exterior' },
+                    { url: 'https://images.unsplash.com/photo-1600585154340-be6161a56a0c?auto=format&fit=crop&w=800&q=80', nome: 'Jardim' },
+                    { url: 'https://images.unsplash.com/photo-1600566752355-35792bedcfea?auto=format&fit=crop&w=800&q=80', nome: 'Piscina' },
+                    { url: 'https://images.unsplash.com/photo-1620626011761-996317b8d101?auto=format&fit=crop&w=800&q=80', nome: 'Piso Superior' }
+                ],
+                status: 'Disponível'
+            }
+        ];
+
+        // ===========================================
+        // ÁREA: FUNÇÕES UTILITÁRIAS
+        // ===========================================
+        // Formatador de Moeda (Kwanza) - Usa API Intl do navegador
+        // Formata valores numéricos para o padrão monetário de Angola (AOA)
+        const formatCurrency = (value) => {
+            return new Intl.NumberFormat('pt-AO', {
+                style: 'currency',
+                currency: 'AOA',
+                minimumFractionDigits: 2
+            }).format(value);
+        };
+
+        // ===========================================
+        // ÁREA: REFERÊNCIAS DO DOM
+        // ===========================================
+        // Elementos do DOM - Referências aos elementos HTML para manipulação
+        // grid: Container onde os cards de imóveis são renderizados
+        // emptyState: Mensagem mostrada quando nenhum resultado é encontrado
+        // resultsCount: Contador de imóveis exibidos
+        // searchForm: Formulário de pesquisa/filtros
+        const grid = document.getElementById('properties-grid');
+        const emptyState = document.getElementById('empty-state');
+        const resultsCount = document.getElementById('results-count');
+        const searchForm = document.getElementById('search-form');
+
+        // ===========================================
+        // ÁREA: RENDERIZAÇÃO DA INTERFACE
+        // ===========================================
+        // Renderizar Propriedades - Função principal que gera os cards na tela
+        // Recebe um array de imóveis e cria o HTML dinamicamente
+        // Inclui lógica para mostrar/esconder estado vazio e animações
+        function renderProperties(data) {
+            grid.innerHTML = '';
+            
+            if (data.length === 0) {
+                grid.classList.add('hidden');
+                emptyState.classList.remove('hidden');
+                resultsCount.textContent = '0 imóveis';
+                return;
+            }
+
+            grid.classList.remove('hidden');
+            emptyState.classList.add('hidden');
+            resultsCount.textContent = `${data.length} imóvel(eis)`;
+
+            data.forEach((imovel, index) => {
+                const delay = index * 50;
+                
+                const featuresHtml = imovel.tipo !== 'Terreno' ? `
+                    <div class="flex gap-4 text-sm text-gray-600 mb-4">
+                        <div class="flex items-center gap-1.5">
+                            <i data-lucide="bed-double" class="w-4 h-4"></i> ${imovel.quartos} Qto
+                        </div>
+                        <div class="flex items-center gap-1.5">
+                            <i data-lucide="bath" class="w-4 h-4"></i> ${imovel.casasBanho} WC
+                        </div>
+                    </div>
+                ` : `<div class="text-sm text-gray-500 italic mb-4">Lote para construção</div>`;
+
+                const card = document.createElement('div');
+                card.className = 'bg-white rounded-2xl shadow-sm border border-gray-100 overflow-hidden hover:shadow-xl transition-all duration-300 hover:-translate-y-1 fade-in cursor-pointer flex flex-col';
+                card.style.animationDelay = `${delay}ms`;
+                card.onclick = () => openModal(imovel.id);
+
+                const badgeColor = imovel.status === 'Disponível' ? 'bg-brand-500' : 'bg-gray-800';
+
+                card.innerHTML = `
+                    <div class="relative h-56 overflow-hidden">
+                        <img src="${imovel.imagem}" alt="${imovel.titulo}" class="w-full h-full object-cover transition-transform duration-500 hover:scale-110" onerror="this.src='https://via.placeholder.com/800x600?text=Sem+Imagem'">
+                        <div class="absolute top-4 left-4 ${badgeColor} text-white text-xs font-bold px-3 py-1 rounded-full uppercase tracking-wide shadow-md">
+                            ${imovel.status}
+                        </div>
+                        <div class="absolute bottom-4 left-4 bg-white/90 backdrop-blur-sm text-gray-900 text-sm font-semibold px-2 py-1 rounded shadow">
+                            ${imovel.tipo}
+                        </div>
+                    </div>
+                    <div class="p-6 flex flex-col flex-grow">
+                        <div class="flex justify-between items-start mb-2">
+                            <h3 class="text-xl font-bold text-gray-900 line-clamp-1">${imovel.titulo}</h3>
+                        </div>
+                        <p class="text-gray-500 text-sm flex items-center gap-1 mb-4">
+                            <i data-lucide="map-pin" class="w-3.5 h-3.5"></i> ${imovel.localizacao}, Huambo
+                        </p>
+                        ${featuresHtml}
+                        <div class="mt-auto pt-4 border-t border-gray-100 flex items-center justify-between">
+                            <span class="text-lg font-extrabold text-brand-600">${formatCurrency(imovel.preco)}</span>
+                            <span class="text-brand-500 hover:text-brand-700 bg-brand-50 p-2 rounded-lg transition">
+                                <i data-lucide="arrow-right" class="w-5 h-5"></i>
+                            </span>
+                        </div>
+                    </div>
+                `;
+                grid.appendChild(card);
+            });
+
+            lucide.createIcons();
+        }
+
+        // ===========================================
+        // ÁREA: FILTRAGEM E PESQUISA
+        // ===========================================
+        // Lógica de Filtro - Processa o formulário de pesquisa
+        // Filtra imóveis por: Localização, Tipo de imóvel e Preço Máximo
+        // Após filtrar, re-renderiza a grid e faz scroll suave para os resultados
+        searchForm.addEventListener('submit', (e) => {
+            e.preventDefault();
+            const location = document.getElementById('filter-location').value;
+            const type = document.getElementById('filter-type').value;
+            const maxPrice = parseFloat(document.getElementById('filter-price').value);
+
+            const filteredData = imoveis.filter(imovel => {
+                const matchLocation = location === "" || imovel.localizacao === location;
+                const matchType = type === "" || imovel.tipo === type;
+                const matchPrice = imovel.preco <= maxPrice;
+                return matchLocation && matchType && matchPrice;
+            });
+
+            renderProperties(filteredData);
+            document.getElementById('catalogo').scrollIntoView({ behavior: 'smooth' });
+        });
+
+        function resetFilters() {
+            document.getElementById('search-form').reset();
+            renderProperties(imoveis);
+        }
+
+        const modal = document.getElementById('property-modal');
+        const body = document.body;
+
+        // ===========================================
+        // ÁREA: GESTÃO DE MODAIS (JANELAS POP-UP)
+        // ===========================================
+        // Lógica do Modal - Controla a janela de detalhes do imóvel
+        // Abre/fecha o modal, preenche dados, gerencia galeria de imagens
+        // Desativa formulário se imóvel estiver "Vendido"
+        function openModal(id) {
+            const imovel = imoveis.find(i => i.id === id);
+            if (!imovel) return;
+
+            const modalImg = document.getElementById('modal-img');
+            modalImg.src = imovel.imagem;
+            
+            const thumbnailsContainer = document.getElementById('modal-thumbnails');
+            thumbnailsContainer.innerHTML = '';
+            
+            if (imovel.galeria && imovel.galeria.length > 0) {
+                imovel.galeria.forEach((item, index) => {
+                    const thumbWrapper = document.createElement('div');
+                    
+                    const baseClass = 'relative w-24 h-20 flex-shrink-0 rounded-lg overflow-hidden cursor-pointer border-2 transition-all duration-200 hover:opacity-100 group';
+                    thumbWrapper.className = index === 0 
+                        ? `${baseClass} border-brand-500 opacity-100` 
+                        : `${baseClass} border-transparent opacity-60`;
+                    
+                    thumbWrapper.innerHTML = `
+                        <img src="${item.url}" alt="${item.nome}" class="w-full h-full object-cover">
+                        <div class="absolute inset-x-0 bottom-0 bg-black/60 text-white text-[10px] font-medium text-center py-0.5 px-1 truncate">
+                            ${item.nome}
+                        </div>
+                    `;
+                    
+                    thumbWrapper.onclick = (e) => {
+                        modalImg.classList.add('opacity-0');
+                        
+                        setTimeout(() => {
+                            modalImg.src = item.url;
+                            modalImg.classList.remove('opacity-0');
+                        }, 200);
+                        
+                        Array.from(thumbnailsContainer.children).forEach(child => {
+                            child.classList.remove('border-brand-500', 'opacity-100');
+                            child.classList.add('border-transparent', 'opacity-60');
+                        });
+                        thumbWrapper.classList.remove('border-transparent', 'opacity-60');
+                        thumbWrapper.classList.add('border-brand-500', 'opacity-100');
+                    };
+                    
+                    thumbnailsContainer.appendChild(thumbWrapper);
+                });
+            } else {
+                thumbnailsContainer.innerHTML = '<p class="text-sm text-gray-400 italic">Sem galeria adicional.</p>';
+            }
+
+            document.getElementById('modal-status').textContent = imovel.status;
+            document.getElementById('modal-status').className = `absolute top-4 left-4 text-white text-xs font-bold px-3 py-1 rounded-full uppercase tracking-wide shadow-md ${imovel.status === 'Disponível' ? 'bg-brand-500' : 'bg-gray-800'}`;
+            document.getElementById('modal-type').textContent = imovel.tipo;
+            document.getElementById('modal-title').textContent = imovel.titulo;
+            document.querySelector('#modal-location span').textContent = `${imovel.localizacao}, Huambo`;
+            document.getElementById('modal-price').textContent = formatCurrency(imovel.preco);
+            document.getElementById('modal-desc').textContent = imovel.descricao;
+            document.getElementById('visit-property-id').value = imovel.id;
+
+            const bedsEl = document.getElementById('modal-beds').parentElement;
+            const bathsEl = document.getElementById('modal-baths').parentElement;
+            if(imovel.tipo === 'Terreno') {
+                bedsEl.style.display = 'none';
+                bathsEl.style.display = 'none';
+            } else {
+                bedsEl.style.display = 'flex';
+                bathsEl.style.display = 'flex';
+                document.getElementById('modal-beds').textContent = `${imovel.quartos} Quartos`;
+                document.getElementById('modal-baths').textContent = `${imovel.casasBanho} WC(s)`;
+            }
+
+            document.getElementById('visit-form').reset();
+            
+            const tomorrow = new Date();
+            tomorrow.setDate(tomorrow.getDate() + 1);
+            document.getElementById('visit-date').min = tomorrow.toISOString().split('T')[0];
+
+            const submitBtn = document.querySelector('#visit-form button');
+            if (imovel.status === 'Vendido') {
+                submitBtn.disabled = true;
+                submitBtn.classList.add('opacity-50', 'cursor-not-allowed');
+                submitBtn.textContent = 'Imóvel Indisponível';
+            } else {
+                submitBtn.disabled = false;
+                submitBtn.classList.remove('opacity-50', 'cursor-not-allowed');
+                submitBtn.textContent = 'Confirmar Pedido';
+            }
+
+            modal.classList.remove('hidden');
+            body.classList.add('modal-open');
+        }
+
+        function closeModal() {
+            modal.classList.add('hidden');
+            body.classList.remove('modal-open');
+        }
+
+        document.addEventListener('keydown', (e) => {
+            if (e.key === 'Escape' && !modal.classList.contains('hidden')) {
+                closeModal();
+            }
+        });
+
+        // ===========================================
+        // ÁREA: FORMULÁRIOS E ENVIO DE DADOS
+        // ===========================================
+        // Lógica de Solicitação de Visita - Processa formulário de agendamento
+        // Simula envio para API (em produção seria: fetch('/api/appointments', ...))
+        // Mostra toast de sucesso e fecha modal após 1 segundo
+        document.getElementById('visit-form').addEventListener('submit', (e) => {
+            e.preventDefault();
+            
+            const btn = e.target.querySelector('button');
+            const originalText = btn.textContent;
+            btn.innerHTML = '<i data-lucide="loader-2" class="w-5 h-5 animate-spin mx-auto"></i>';
+            btn.disabled = true;
+            lucide.createIcons();
+
+            setTimeout(() => {
+                closeModal();
+                showToast('Pedido de visita enviado com sucesso! O corretor entrará em contacto em breve.', 'success');
+                btn.textContent = originalText;
+                btn.disabled = false;
+            }, 1000);
+        });
+
+        // ===========================================
+        // ÁREA: SISTEMA DE NOTIFICAÇÕES (TOASTS)
+        // ===========================================
+        // Sistema de Notificações (Toasts) - Substitui alert() por notificações elegantes
+        // Tipos: 'success' (verde), 'info' (azul)
+        // Auto-remove após 4 segundos com animação de fade-out
+        function showToast(message, type = 'success') {
+            const container = document.getElementById('toast-container');
+            const toast = document.createElement('div');
+            
+            const bgColor = type === 'success' ? 'bg-green-600' : 'bg-blue-600';
+            const icon = type === 'success' ? 'check-circle' : 'info';
+
+            toast.className = `${bgColor} text-white px-4 py-3 rounded-lg shadow-lg flex items-center gap-3 transform transition-all duration-300 translate-y-10 opacity-0`;
+            
+            toast.innerHTML = `
+                <i data-lucide="${icon}" class="w-5 h-5 flex-shrink-0"></i>
+                <p class="text-sm font-medium">${message}</p>
+                <button onclick="this.parentElement.remove()" class="ml-2 text-white/80 hover:text-white">
+                    <i data-lucide="x" class="w-4 h-4"></i>
+                </button>
+            `;
+
+            container.appendChild(toast);
+            lucide.createIcons();
+
+            requestAnimationFrame(() => {
+                toast.classList.remove('translate-y-10', 'opacity-0');
+            });
+
+            setTimeout(() => {
+                toast.classList.add('opacity-0', 'translate-x-10');
+                setTimeout(() => toast.remove(), 300);
+            }, 4000);
+        }
+
+        // ===========================================
+        // ÁREA: INICIALIZAÇÃO DA APLICAÇÃO
+        // ===========================================
+        // Inicializar a aplicação ao carregar a página
+        // Renderiza todos os imóveis mockados inicialmente
+        window.addEventListener('DOMContentLoaded', () => {
+            renderProperties(imoveis);
+        });
+
+    </script>
 </body>
 </html>

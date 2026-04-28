@@ -1,0 +1,253 @@
+<!DOCTYPE html>
+<html lang="pt-PT">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>Login | Maison Huambo</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://unpkg.com/lucide@latest"></script>
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        brand: {
+                            50: '#f0fdfa',
+                            100: '#ccfbf1',
+                            500: '#14b8a6',
+                            600: '#0d9488',
+                            900: '#134e4a',
+                        }
+                    },
+                    fontFamily: {
+                        sans: ['Inter', 'ui-sans-serif', 'system-ui', 'sans-serif'],
+                    }
+                }
+            }
+        }
+    </script>
+    <style>
+        body { margin: 0; }
+        .bg-animated {
+            background: linear-gradient(-45deg, #134e4a, #0d9488, #14b8a6, #0d9488);
+            background-size: 400% 400%;
+            animation: gradientBG 15s ease infinite;
+        }
+        @keyframes gradientBG {
+            0% { background-position: 0% 50%; }
+            50% { background-position: 100% 50%; }
+            100% { background-position: 0% 50%; }
+        }
+        .glass {
+            background: rgba(255, 255, 255, 0.1);
+            backdrop-filter: blur(10px);
+            -webkit-backdrop-filter: blur(10px);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+        }
+        .fade-in { animation: fadeIn 1s ease-out; }
+        @keyframes fadeIn { from { opacity: 0; transform: translateY(20px); } to { opacity: 1; transform: translateY(0); } }
+        
+        /* Toggle entre Login/Cadastro */
+        .form-hidden { display: none; }
+    </style>
+</head>
+<body class="bg-animated min-h-screen flex items-center justify-center p-4">
+
+    <div class="glass rounded-3xl p-8 md:p-12 max-w-md w-full fade-in shadow-2xl">
+        
+        <!-- Logo -->
+        <div class="text-center mb-8">
+            <div class="inline-flex items-center justify-center w-16 h-16 rounded-2xl bg-white/20 mb-4">
+                <i data-lucide="home" class="w-8 h-8 text-white"></i>
+            </div>
+            <h1 class="text-3xl font-extrabold text-white mb-2">Maison Huambo</h1>
+            <p class="text-white/70">Acesse sua conta ou cadastre-se</p>
+        </div>
+
+        <!-- Toggle Buttons -->
+        <div class="flex bg-white/10 rounded-xl p-1 mb-8">
+            <button id="btn-login" onclick="showForm('login')" class="flex-1 py-2.5 rounded-lg font-medium text-white bg-white/20 transition">
+                Login
+            </button>
+            <button id="btn-cadastro" onclick="showForm('cadastro')" class="flex-1 py-2.5 rounded-lg font-medium text-white/70 hover:bg-white/10 transition">
+                Cadastro
+            </button>
+        </div>
+
+        <!-- Formulário de Login -->
+        <form id="form-login" class="space-y-4">
+            <div>
+                <label class="block text-sm font-semibold text-white/90 mb-1">E-mail</label>
+                <div class="relative">
+                    <i data-lucide="mail" class="absolute left-3 top-1/2 -translate-y-1/2 w-5 h-5 text-white/50"></i>
+                    <input type="email" required placeholder="seu@email.com" class="w-full bg-white/10 border border-white/20 text-white placeholder-white/50 py-2.5 pl-10 pr-4 rounded-lg focus:outline-none focus:ring-2 focus:ring-white/50">
+                </div>
+            </div>
+            <div>
+                <label class="block text-sm font-semibold text-white/90 mb-1">Senha</label>
+                <div class="relative">
+                    <i data-lucide="lock" class="absolute left-3 top-1/2 -translate-y-1/2 w-5 h-5 text-white/50"></i>
+                    <input type="password" required placeholder="••••••••" class="w-full bg-white/10 border border-white/20 text-white placeholder-white/50 py-2.5 pl-10 pr-4 rounded-lg focus:outline-none focus:ring-2 focus:ring-white/50">
+                </div>
+            </div>
+            <div class="flex items-center justify-between text-sm">
+                <label class="flex items-center gap-2 text-white/80">
+                    <input type="checkbox" class="rounded border-white/30 bg-white/10 text-brand-500 focus:ring-brand-500">
+                    <span>Lembrar-me</span>
+                </label>
+                <a href="#" class="text-white hover:text-white/80 font-medium">Esqueceu a senha?</a>
+            </div>
+            <button type="submit" class="w-full bg-white text-brand-900 font-bold py-3 rounded-xl hover:bg-gray-100 transition shadow-md">
+                Entrar
+            </button>
+        </form>
+
+        <!-- Formulário de Cadastro -->
+        <form id="form-cadastro" class="form-hidden space-y-4">
+            <div>
+                <label class="block text-sm font-semibold text-white/90 mb-1">Nome Completo</label>
+                <div class="relative">
+                    <i data-lucide="user" class="absolute left-3 top-1/2 -translate-y-1/2 w-5 h-5 text-white/50"></i>
+                    <input type="text" required placeholder="Seu nome completo" class="w-full bg-white/10 border border-white/20 text-white placeholder-white/50 py-2.5 pl-10 pr-4 rounded-lg focus:outline-none focus:ring-2 focus:ring-white/50">
+                </div>
+            </div>
+            <div>
+                <label class="block text-sm font-semibold text-white/90 mb-1">E-mail</label>
+                <div class="relative">
+                    <i data-lucide="mail" class="absolute left-3 top-1/2 -translate-y-1/2 w-5 h-5 text-white/50"></i>
+                    <input type="email" required placeholder="seu@email.com" class="w-full bg-white/10 border border-white/20 text-white placeholder-white/50 py-2.5 pl-10 pr-4 rounded-lg focus:outline-none focus:ring-2 focus:ring-white/50">
+                </div>
+            </div>
+            <div class="grid grid-cols-2 gap-4">
+                <div>
+                    <label class="block text-sm font-semibold text-white/90 mb-1">Telefone</label>
+                    <div class="relative">
+                        <i data-lucide="phone" class="absolute left-3 top-1/2 -translate-y-1/2 w-5 h-5 text-white/50"></i>
+                        <input type="tel" required placeholder="92X XXX XXX" class="w-full bg-white/10 border border-white/20 text-white placeholder-white/50 py-2.5 pl-10 pr-4 rounded-lg focus:outline-none focus:ring-2 focus:ring-white/50">
+                    </div>
+                </div>
+                <div>
+                    <label class="block text-sm font-semibold text-white/90 mb-1">Tipo de Conta</label>
+                    <select class="w-full bg-white/10 border border-white/20 text-white py-2.5 px-3 rounded-lg focus:outline-none focus:ring-2 focus:ring-white/50">
+                        <option value="proprietario" class="text-gray-900">Proprietário</option>
+                        <option value="corretor" class="text-gray-900">Corretor</option>
+                    </select>
+                </div>
+            </div>
+            <div>
+                <label class="block text-sm font-semibold text-white/90 mb-1">Senha</label>
+                <div class="relative">
+                    <i data-lucide="lock" class="absolute left-3 top-1/2 -translate-y-1/2 w-5 h-5 text-white/50"></i>
+                    <input type="password" required placeholder="Mínimo 6 caracteres" class="w-full bg-white/10 border border-white/20 text-white placeholder-white/50 py-2.5 pl-10 pr-4 rounded-lg focus:outline-none focus:ring-2 focus:ring-white/50">
+                </div>
+            </div>
+            <div class="flex items-start gap-2 text-sm text-white/80">
+                <input type="checkbox" required class="mt-0.5 rounded border-white/30 bg-white/10 text-brand-500 focus:ring-brand-500">
+                <span>Concordo com os <a href="#" class="text-white font-medium underline">Termos de Uso</a> e <a href="#" class="text-white font-medium underline">Política de Privacidade</a></span>
+            </div>
+            <button type="submit" class="w-full bg-white text-brand-900 font-bold py-3 rounded-xl hover:bg-gray-100 transition shadow-md">
+                Criar Conta
+            </button>
+        </form>
+
+        <!-- Link para voltar -->
+        <div class="mt-6 text-center">
+            <a href="boas-vindas.html" class="text-white/60 hover:text-white text-sm inline-flex items-center gap-1">
+                <i data-lucide="arrow-left" class="w-4 h-4"></i>
+                Voltar para página inicial
+            </a>
+        </div>
+
+    </div>
+
+    <script>
+        lucide.createIcons();
+
+        // =========================================
+        // ÁREA: NAVEGAÇÃO ENTRE FORMULÁRIOS
+        // =========================================
+        // Alterna a visualização entre formulários de Login e Cadastro
+        function showForm(form) {
+            const loginForm = document.getElementById('form-login');
+            const cadastroForm = document.getElementById('form-cadastro');
+            const btnLogin = document.getElementById('btn-login');
+            const btnCadastro = document.getElementById('btn-cadastro');
+
+            if (form === 'login') {
+                loginForm.classList.remove('form-hidden');
+                cadastroForm.classList.add('form-hidden');
+                btnLogin.classList.add('bg-white/20', 'text-white');
+                btnLogin.classList.remove('text-white/70');
+                btnCadastro.classList.remove('bg-white/20', 'text-white');
+                btnCadastro.classList.add('text-white/70');
+            } else {
+                loginForm.classList.add('form-hidden');
+                cadastroForm.classList.remove('form-hidden');
+                btnCadastro.classList.add('bg-white/20', 'text-white');
+                btnCadastro.classList.remove('text-white/70');
+                btnLogin.classList.remove('bg-white/20', 'text-white');
+                btnLogin.classList.add('text-white/70');
+            }
+        }
+
+        // =========================================
+        // ÁREA: PROCESSAMENTO DE FORMULÁRIOS
+        // =========================================
+        // Simulação de login (em produção seria: POST /api/auth/login)
+        document.getElementById('form-login').addEventListener('submit', (e) => {
+            e.preventDefault();
+            // Simular autenticação
+            showToast('Login realizado com sucesso! Redirecionando...', 'success');
+            setTimeout(() => {
+                // Em produção: redirecionar baseado no tipo de usuário
+                window.location.href = 'index.html';
+            }, 2000);
+        });
+
+        // Simulação de cadastro (em produção seria: POST /api/auth/register)
+        document.getElementById('form-cadastro').addEventListener('submit', (e) => {
+            e.preventDefault();
+            showToast('Conta criada com sucesso! Faça login para continuar.', 'success');
+            showForm('login');
+        });
+
+        // =========================================
+        // ÁREA: SISTEMA DE NOTIFICAÇÕES (TOASTS)
+        // =========================================
+        // Mostra notificação temporária
+        function showToast(message, type = 'success') {
+            const container = document.getElementById('toast-container') || createToastContainer();
+            const toast = document.createElement('div');
+            
+            const bgColor = type === 'success' ? 'bg-green-600' : 'bg-blue-600';
+            const icon = type === 'success' ? 'check-circle' : 'info';
+
+            toast.className = `${bgColor} text-white px-4 py-3 rounded-lg shadow-lg flex items-center gap-3 transform transition-all duration-300 translate-y-10 opacity-0`;
+            toast.innerHTML = `<i data-lucide="${icon}" class="w-5 h-5 flex-shrink-0"></i><p class="text-sm font-medium">${message}</p>`;
+
+            container.appendChild(toast);
+            lucide.createIcons();
+
+            requestAnimationFrame(() => {
+                toast.classList.remove('translate-y-10', 'opacity-0');
+            });
+
+            setTimeout(() => {
+                toast.classList.add('opacity-0', 'translate-x-10');
+                setTimeout(() => toast.remove(), 300);
+            }, 4000);
+        }
+
+        function createToastContainer() {
+            const container = document.createElement('div');
+            container.id = 'toast-container';
+            container.className = 'fixed bottom-4 right-4 z-50 flex flex-col gap-2';
+            document.body.appendChild(container);
+            return container;
+        }
+
+        // Inicializar com formulário de login
+        showForm('login');
+    </script>
+</body>
+</html>
