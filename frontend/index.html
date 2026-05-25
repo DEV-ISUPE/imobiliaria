@@ -4,9 +4,19 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <title>Maison Huambo | Imobiliária</title>
+    <!-- Tailwind CSS: Framework utilitário para estilizar a página -->
     <script src="https://cdn.tailwindcss.com"></script>
+    <!-- Lucide: Biblioteca de ícones SVG leves -->
     <script src="https://unpkg.com/lucide@latest"></script>
+    <!-- Módulo API: Centraliza todas as chamadas ao servidor backend -->
+    <script src="js/api.js"></script>
     <script>
+        // ===============================================================
+        // CONFIGURAÇÃO DO TAILWIND
+        // ===============================================================
+        // Personalizamos o Tailwind com as cores da marca (brand) e a
+        // fonte Inter. Isto permite usar classes como bg-brand-600,
+        // text-brand-500, etc. no HTML.
         tailwind.config = {
             theme: {
                 extend: {
@@ -27,30 +37,39 @@
         }
     </script>
     <style>
+        /* Animações CSS personalizadas */
         .fade-in { animation: fadeIn 0.3s ease-in-out; }
         @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
+        /* Quando um modal está aberto, impede scroll da página */
         .modal-open { overflow: hidden; }
+        /* Oculta a barra de scroll horizontal (para galeria de thumbnails) */
         .no-scrollbar::-webkit-scrollbar { display: none; }
         .no-scrollbar { -ms-overflow-style: none; scrollbar-width: none; }
     </style>
 </head>
 <body class="bg-gray-50 text-gray-800 font-sans antialiased flex flex-col min-h-screen">
 
+    <!-- ============================================================
+    BARRA DE NAVEGAÇÃO (Navbar)
+    ============================================================ -->
     <nav class="bg-white shadow-sm sticky top-0 z-40">
         <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
             <div class="flex justify-between h-16 items-center">
+                <!-- Logo: clicar volta ao topo -->
                 <div class="flex items-center gap-2 cursor-pointer" onclick="window.scrollTo(0,0)">
                     <i data-lucide="home" class="text-brand-600 w-8 h-8"></i>
                     <span class="font-bold text-xl tracking-tight text-brand-900">Maison Huambo</span>
                 </div>
+                <!-- Links de navegação do menu -->
                 <div class="hidden md:flex space-x-8 items-center">
                     <a href="#" class="text-gray-600 hover:text-brand-600 font-medium transition">Início</a>
                     <a href="#catalogo" class="text-gray-600 hover:text-brand-600 font-medium transition">Imóveis</a>
                     <a href="#" class="text-gray-600 hover:text-brand-600 font-medium transition">Sobre Nós</a>
                 </div>
+                <!-- Botão "Corretor" que leva à área de login -->
                 <div class="flex items-center">
-                    <button onclick="showToast('Área de Corretores em desenvolvimento!', 'info')" class="flex items-center gap-2 bg-brand-50 text-brand-600 border border-brand-200 hover:bg-brand-100 px-4 py-2 rounded-lg font-medium transition">
-                        <i data-lucide="lock" class="w-4 h-4"></i>
+                    <button id="btn-corretor" onclick="openCorretorArea()" class="flex items-center gap-2 bg-brand-50 text-brand-600 border border-brand-200 hover:bg-brand-100 px-4 py-2 rounded-lg font-medium transition">
+                        <i data-lucide="lock" class="w-4 h-4" id="corretor-icon"></i>
                         <span class="hidden sm:inline">Corretor</span>
                     </button>
                 </div>
@@ -58,7 +77,14 @@
         </div>
     </nav>
 
+    <!-- ============================================================
+    CABEÇALHO (Hero Section)
+    ============================================================
+    Secção principal com imagem de fundo, título e formulário de
+    pesquisa. O formulário permite filtrar imóveis por localização,
+    tipo e preço máximo. -->
     <header class="relative bg-brand-900 py-20 lg:py-32 overflow-hidden">
+        <!-- Imagem de fundo com gradiente sobreposto -->
         <div class="absolute inset-0 opacity-20">
             <img src="https://images.unsplash.com/photo-1600596542815-ffad4c1539a9?auto=format&fit=crop&w=1920&q=80" alt="Fundo Imobiliário" class="w-full h-full object-cover" onerror="this.style.display='none'">
         </div>
@@ -72,8 +98,10 @@
                 A plataforma mais segura e rápida para comprar, arrendar ou agendar visitas a propriedades incríveis.
             </p>
 
+            <!-- Formulário de Pesquisa -->
             <div class="bg-white p-4 rounded-2xl shadow-xl max-w-4xl mx-auto fade-in">
                 <form id="search-form" class="grid grid-cols-1 md:grid-cols-4 gap-4">
+                    <!-- Filtro: Localização -->
                     <div class="relative">
                         <label class="block text-xs font-semibold text-gray-500 uppercase tracking-wider mb-1">Localização</label>
                         <select id="filter-location" class="w-full bg-gray-50 border border-gray-200 text-gray-700 py-2 px-3 rounded-lg focus:outline-none focus:ring-2 focus:ring-brand-500 focus:border-transparent">
@@ -84,6 +112,7 @@
                             <option value="Benfica">Benfica</option>
                         </select>
                     </div>
+                    <!-- Filtro: Tipo de Imóvel -->
                     <div class="relative">
                         <label class="block text-xs font-semibold text-gray-500 uppercase tracking-wider mb-1">Tipo</label>
                         <select id="filter-type" class="w-full bg-gray-50 border border-gray-200 text-gray-700 py-2 px-3 rounded-lg focus:outline-none focus:ring-2 focus:ring-brand-500 focus:border-transparent">
@@ -93,6 +122,7 @@
                             <option value="Terreno">Terreno</option>
                         </select>
                     </div>
+                    <!-- Filtro: Preço Máximo -->
                     <div class="relative">
                         <label class="block text-xs font-semibold text-gray-500 uppercase tracking-wider mb-1">Preço Máximo</label>
                         <select id="filter-price" class="w-full bg-gray-50 border border-gray-200 text-gray-700 py-2 px-3 rounded-lg focus:outline-none focus:ring-2 focus:ring-brand-500 focus:border-transparent">
@@ -103,6 +133,7 @@
                             <option value="100000000">Até 100.000.000 Kz</option>
                         </select>
                     </div>
+                    <!-- Botão Pesquisar -->
                     <div class="flex items-end">
                         <button type="submit" class="w-full bg-brand-600 hover:bg-brand-500 text-white font-bold py-2.5 px-4 rounded-lg transition shadow-md flex items-center justify-center gap-2">
                             <i data-lucide="search" class="w-5 h-5"></i>
@@ -114,7 +145,11 @@
         </div>
     </header>
 
+    <!-- ============================================================
+    CATÁLOGO DE IMÓVEIS (Main Content)
+    ============================================================ -->
     <main id="catalogo" class="flex-grow max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12 w-full">
+        <!-- Cabeçalho da secção com contagem de resultados -->
         <div class="flex justify-between items-end mb-8">
             <div>
                 <h2 class="text-3xl font-bold text-gray-900">Imóveis em Destaque</h2>
@@ -124,9 +159,11 @@
             </div>
         </div>
 
+        <!-- Grid de imóveis: preenchido dinamicamente pelo JavaScript -->
         <div id="properties-grid" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
         </div>
 
+        <!-- Estado vazio: mostrado quando não há imóveis correspondentes -->
         <div id="empty-state" class="hidden flex flex-col items-center justify-center py-20 text-center">
             <div class="bg-gray-100 p-6 rounded-full mb-4">
                 <i data-lucide="search-x" class="w-12 h-12 text-gray-400"></i>
@@ -137,6 +174,7 @@
         </div>
     </main>
 
+    <!-- Rodapé da página -->
     <footer class="bg-white border-t border-gray-200 mt-auto">
         <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
             <div class="md:flex md:items-center md:justify-between">
@@ -150,36 +188,49 @@
         </div>
     </footer>
 
+    <!-- ============================================================
+    MODAL DE DETALHES DO IMÓVEL
+    ============================================================
+    Janela pop-up (overlay) que mostra informações detalhadas do
+    imóvel quando o utilizador clica num card. Inclui imagem,
+    galeria de thumbnails, dados da propriedade e formulário
+    de solicitação de visita. -->
     <div id="property-modal" class="fixed inset-0 z-50 hidden" aria-labelledby="modal-title" role="dialog" aria-modal="true">
+        <!-- Overlay escuro por trás do modal -->
         <div class="fixed inset-0 bg-gray-900 bg-opacity-75 transition-opacity backdrop-blur-sm" onclick="closeModal()"></div>
 
         <div class="fixed inset-0 z-10 overflow-y-auto">
             <div class="flex min-h-full items-end justify-center p-4 text-center sm:items-center sm:p-0">
                 <div class="relative transform overflow-hidden rounded-2xl bg-white text-left shadow-xl transition-all sm:my-8 sm:w-full sm:max-w-3xl fade-in flex flex-col md:flex-row">
                     
+                    <!-- Lado esquerdo: Imagem, galeria e botões de contacto -->
                     <div class="md:w-1/2 flex flex-col relative bg-gray-50 border-r border-gray-200">
+                        <!-- Imagem principal do modal -->
                         <div class="relative h-64 md:h-80 w-full flex-shrink-0">
                             <img id="modal-img" src="" alt="Property" class="w-full h-full object-cover transition-opacity duration-300">
+                            <!-- Badge de status (Disponível/Vendido) -->
                             <div class="absolute top-4 left-4 bg-brand-500 text-white text-xs font-bold px-3 py-1 rounded-full uppercase tracking-wide shadow-md">
                                 <span id="modal-status"></span>
                             </div>
                         </div>
                         
+                        <!-- Galeria de thumbnails (preenchida dinamicamente) -->
                         <div id="modal-thumbnails" class="flex gap-3 p-4 overflow-x-auto no-scrollbar bg-white h-28 items-center justify-start border-t border-gray-100">
                         </div>
 
+                        <!-- Botões de contacto: WhatsApp, Telefone, Email -->
                         <div class="p-4 bg-gray-50 mt-auto border-t border-gray-200">
                             <p class="text-[11px] font-bold text-gray-500 uppercase tracking-widest mb-3 text-center md:text-left">Contactar o Corretor</p>
                             <div class="flex gap-2">
-                                <a href="#" onclick="showToast('A abrir o WhatsApp...', 'info'); return false;" class="flex-1 flex items-center justify-center gap-1.5 bg-[#25D366] hover:bg-[#1ebd5b] text-white py-2 px-2 rounded-lg text-sm font-medium transition shadow-sm" title="WhatsApp">
+                                <a href="#" onclick="contactWhatsApp(currentImovel); return false;" class="flex-1 flex items-center justify-center gap-1.5 bg-[#25D366] hover:bg-[#1ebd5b] text-white py-2 px-2 rounded-lg text-sm font-medium transition shadow-sm" title="WhatsApp">
                                     <svg class="w-4 h-4 fill-current" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.149-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421 7.403h-.004a9.87 9.87 0 01-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 01-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.825 9.825 0 012.893 6.994c-.003 5.45-4.437 9.884-9.885 9.884m8.413-18.297A11.815 11.815 0 0012.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.142 1.588 5.945L.057 24l6.305-1.654a11.882 11.882 0 005.683 1.448h.005c6.554 0 11.89-5.335 11.893-11.893a11.821 11.821 0 00-3.48-8.413Z"/></svg>
                                     <span class="hidden sm:inline">WhatsApp</span>
                                 </a>
-                                <a href="#" onclick="showToast('A iniciar chamada telefónica...', 'info'); return false;" class="flex-1 flex items-center justify-center gap-1.5 bg-white hover:bg-gray-100 text-gray-800 border border-gray-200 py-2 px-2 rounded-lg text-sm font-medium transition shadow-sm" title="Ligar">
+                                <a href="#" onclick="contactCall(currentImovel); return false;" class="flex-1 flex items-center justify-center gap-1.5 bg-white hover:bg-gray-100 text-gray-800 border border-gray-200 py-2 px-2 rounded-lg text-sm font-medium transition shadow-sm" title="Ligar">
                                     <i data-lucide="phone" class="w-4 h-4 text-brand-600"></i>
                                     <span class="hidden sm:inline">Ligar</span>
                                 </a>
-                                <a href="#" onclick="showToast('A compor o email...', 'info'); return false;" class="flex-1 flex items-center justify-center gap-1.5 bg-white hover:bg-gray-100 text-gray-800 border border-gray-200 py-2 px-2 rounded-lg text-sm font-medium transition shadow-sm" title="Email">
+                                <a href="#" onclick="contactEmail(currentImovel); return false;" class="flex-1 flex items-center justify-center gap-1.5 bg-white hover:bg-gray-100 text-gray-800 border border-gray-200 py-2 px-2 rounded-lg text-sm font-medium transition shadow-sm" title="Email">
                                     <i data-lucide="mail" class="w-4 h-4 text-brand-600"></i>
                                     <span class="hidden sm:inline">Email</span>
                                 </a>
@@ -187,8 +238,10 @@
                         </div>
                     </div>
 
+                    <!-- Lado direito: Detalhes do imóvel e formulário de visita -->
                     <div class="md:w-1/2 p-6 md:p-8 flex flex-col justify-between">
                         <div>
+                            <!-- Título, tipo e badge de fechar -->
                             <div class="flex justify-between items-start">
                                 <div>
                                     <p id="modal-type" class="text-sm font-semibold text-brand-600 uppercase tracking-wider mb-1"></p>
@@ -199,13 +252,16 @@
                                 </button>
                             </div>
                             
+                            <!-- Localização -->
                             <p id="modal-location" class="text-gray-500 flex items-center gap-1 mb-4">
                                 <i data-lucide="map-pin" class="w-4 h-4"></i>
                                 <span></span>
                             </p>
                             
+                            <!-- Preço -->
                             <div class="text-3xl font-extrabold text-gray-900 mb-6" id="modal-price"></div>
                             
+                            <!-- Características (quartos, etc.) -->
                             <div class="flex gap-6 mb-6 pb-6 border-b border-gray-100">
                                 <div class="flex items-center gap-2 text-gray-700">
                                     <i data-lucide="bed-double" class="w-5 h-5 text-gray-400"></i>
@@ -217,9 +273,11 @@
                                 </div>
                             </div>
                             
+                            <!-- Descrição do imóvel -->
                             <p id="modal-desc" class="text-gray-600 text-sm mb-6 leading-relaxed"></p>
                         </div>
 
+                        <!-- Formulário de Solicitação de Visita -->
                         <div class="bg-gray-50 p-4 rounded-xl border border-gray-100">
                             <h4 class="font-bold text-gray-900 mb-3 text-sm flex items-center gap-2">
                                 <i data-lucide="calendar-clock" class="w-4 h-4 text-brand-600"></i>
@@ -245,126 +303,43 @@
         </div>
     </div>
 
+    <!-- Container para notificações (toasts) -->
     <div id="toast-container" class="fixed bottom-4 right-4 z-50 flex flex-col gap-2"></div>
 
+    <!-- ============================================================
+    JAVASCRIPT DA PÁGINA
+    ============================================================
+    Aqui começa o código JavaScript que controla a lógica da página:
+    carregar imóveis da API, renderizar cards, filtrar, abrir modais,
+    enviar formulários e mostrar notificações. -->
     <script>
+        // ===========================================================
+        // INICIALIZAÇÃO DOS ÍCONES LUCIDE
+        // ===========================================================
+        // A biblioteca Lucide precisa ser inicializada para converter
+        // os elementos <i data-lucide="..."> em ícones SVG reais.
         lucide.createIcons();
 
-        // ===========================================
-        // ÁREA: DADOS E CONFIGURAÇÕES INICIAIS
-        // ===========================================
-        // Dados simulados (Mock Data) que viriam da BD MySQL através da API Node.js
-        // Em produção, seria: fetch('/api/properties').then(...)
-        // Cada objeto representa um imóvel com titulo, descricao, tipo, preco, etc.
-        const imoveis = [
-            {
-                id: 'imv-001',
-                titulo: 'Vivenda T4 de Luxo',
-                descricao: 'Magnífica vivenda com acabamentos modernos, quintal amplo, garagem para 2 carros e suíte master. Ideal para famílias grandes que procuram conforto.',
-                tipo: 'Vivenda',
-                preco: 85000000,
-                quartos: 4,
-                casasBanho: 3,
-                localizacao: 'Cidade Alta',
-                imagem: 'https://images.unsplash.com/photo-1600596542815-ffad4c1539a9?auto=format&fit=crop&w=800&q=80',
-                galeria: [
-                    { url: 'https://images.unsplash.com/photo-1600596542815-ffad4c1539a9?auto=format&fit=crop&w=800&q=80', nome: 'Fachada' },
-                    { url: 'https://images.unsplash.com/photo-1600607687920-4e2a09cf159d?auto=format&fit=crop&w=800&q=80', nome: 'Sala de Estar' },
-                    { url: 'https://images.unsplash.com/photo-1522771731478-4ea167ee6010?auto=format&fit=crop&w=800&q=80', nome: 'Quarto Principal' },
-                    { url: 'https://images.unsplash.com/photo-1584622650111-993a426fbf0a?auto=format&fit=crop&w=800&q=80', nome: 'Casa de Banho' }
-                ],
-                status: 'Disponível'
-            },
-            {
-                id: 'imv-002',
-                titulo: 'Apartamento T2 Central',
-                descricao: 'Apartamento recém-remodelado no centro do Huambo. Cozinha equipada, varanda com vista para a cidade e prédio com segurança 24h.',
-                tipo: 'Apartamento',
-                preco: 25000000,
-                quartos: 2,
-                casasBanho: 1,
-                localizacao: 'Centro',
-                imagem: 'https://images.unsplash.com/photo-1522708323590-d24dbb6b0267?auto=format&fit=crop&w=800&q=80',
-                galeria: [
-                    { url: 'https://images.unsplash.com/photo-1522708323590-d24dbb6b0267?auto=format&fit=crop&w=800&q=80', nome: 'Quarto' },
-                    { url: 'https://images.unsplash.com/photo-1560448204-e02f11c3d0e2?auto=format&fit=crop&w=800&q=80', nome: 'Cozinha' },
-                    { url: 'https://images.unsplash.com/photo-1484154218962-a197022b5858?auto=format&fit=crop&w=800&q=80', nome: 'Sala' }
-                ],
-                status: 'Disponível'
-            },
-            {
-                id: 'imv-003',
-                titulo: 'Terreno Bem Localizado',
-                descricao: 'Lote de terreno murado com 20x30m, localizado em zona de expansão pacífica. Documentação completa e pronta para construção.',
-                tipo: 'Terreno',
-                preco: 12000000,
-                quartos: 0,
-                casasBanho: 0,
-                localizacao: 'Benfica',
-                imagem: 'https://images.unsplash.com/photo-1500382017468-9049fed747ef?auto=format&fit=crop&w=800&q=80',
-                galeria: [
-                    { url: 'https://images.unsplash.com/photo-1500382017468-9049fed747ef?auto=format&fit=crop&w=800&q=80', nome: 'Vista Frontal' },
-                    { url: 'https://images.unsplash.com/photo-1621294866578-8316dfebf65e?auto=format&fit=crop&w=800&q=80', nome: 'Rua de Acesso' }
-                ],
-                status: 'Disponível'
-            },
-            {
-                id: 'imv-004',
-                titulo: 'Vivenda T3 Aconchegante',
-                descricao: 'Vivenda rústica mas conservada, com anexo e tanque de água de 10.000L. Próxima a escolas e supermercados.',
-                tipo: 'Vivenda',
-                preco: 45000000,
-                quartos: 3,
-                casasBanho: 2,
-                localizacao: 'São João',
-                imagem: 'https://images.unsplash.com/photo-1564013799919-ab600027ffc6?auto=format&fit=crop&w=800&q=80',
-                galeria: [
-                    { url: 'https://images.unsplash.com/photo-1564013799919-ab600027ffc6?auto=format&fit=crop&w=800&q=80', nome: 'Fachada' },
-                    { url: 'https://images.unsplash.com/photo-1502672260266-1c1e5250ad99?auto=format&fit=crop&w=800&q=80', nome: 'Sala Térrea' },
-                    { url: 'https://images.unsplash.com/photo-1600566753190-17f0baa2a6c3?auto=format&fit=crop&w=800&q=80', nome: 'Corredor' }
-                ],
-                status: 'Disponível'
-            },
-            {
-                id: 'imv-005',
-                titulo: 'Apartamento T3 Moderno',
-                descricao: 'Espaçoso T3 no 2º andar, condomínio fechado com piscina e área de lazer. Sala de estar ampla com muita luz natural.',
-                tipo: 'Apartamento',
-                preco: 55000000,
-                quartos: 3,
-                casasBanho: 2,
-                localizacao: 'Cidade Alta',
-                imagem: 'https://images.unsplash.com/photo-1502672260266-1c1e5250ad99?auto=format&fit=crop&w=800&q=80',
-                galeria: [
-                    { url: 'https://images.unsplash.com/photo-1502672260266-1c1e5250ad99?auto=format&fit=crop&w=800&q=80', nome: 'Sala e Cozinha' }
-                ],
-                status: 'Vendido'
-            },
-            {
-                id: 'imv-006',
-                titulo: 'Vivenda T5 Espaçosa',
-                descricao: 'Propriedade de alto padrão com dois pisos, jardim de inverno, churrasqueira e sistema de segurança integrado.',
-                tipo: 'Vivenda',
-                preco: 120000000,
-                quartos: 5,
-                casasBanho: 4,
-                localizacao: 'Centro',
-                imagem: 'https://images.unsplash.com/photo-1512917774080-9991f1c4c750?auto=format&fit=crop&w=800&q=80',
-                galeria: [
-                    { url: 'https://images.unsplash.com/photo-1512917774080-9991f1c4c750?auto=format&fit=crop&w=800&q=80', nome: 'Exterior' },
-                    { url: 'https://images.unsplash.com/photo-1600585154340-be6161a56a0c?auto=format&fit=crop&w=800&q=80', nome: 'Jardim' },
-                    { url: 'https://images.unsplash.com/photo-1600566752355-35792bedcfea?auto=format&fit=crop&w=800&q=80', nome: 'Piscina' },
-                    { url: 'https://images.unsplash.com/photo-1620626011761-996317b8d101?auto=format&fit=crop&w=800&q=80', nome: 'Piso Superior' }
-                ],
-                status: 'Disponível'
-            }
-        ];
+        // ===========================================================
+        // VARIÁVEIS GLOBAIS
+        // ===========================================================
+        // imoveis: Array de imóveis atualmente exibidos (filtrados)
+        // allImoveis: Array completo de imóveis (sem filtros)
+        // currentImovel: Objeto do imóvel atualmente no modal
+        let imoveis = [];
+        let allImoveis = [];
+        let currentImovel = null;
 
-        // ===========================================
-        // ÁREA: FUNÇÕES UTILITÁRIAS
-        // ===========================================
-        // Formatador de Moeda (Kwanza) - Usa API Intl do navegador
-        // Formata valores numéricos para o padrão monetário de Angola (AOA)
+        // ===========================================================
+        // formatCurrency(value)
+        // Descrição: Formata um valor numérico para Kz (Kwanza angolano)
+        // Parâmetros: value (number)
+        // Retorno: String formatada no estilo "15.000.000,00 Kz"
+        // -------------------------------------------
+        // Usa a API Intl.NumberFormat do JavaScript, que é uma
+        // ferramenta nativa para formatar números conforme as
+        // convenções de cada país/região. pt-AO = português de Angola
+        // AOA = código ISO da moeda Kwanza.
         const formatCurrency = (value) => {
             return new Intl.NumberFormat('pt-AO', {
                 style: 'currency',
@@ -373,25 +348,51 @@
             }).format(value);
         };
 
-        // ===========================================
-        // ÁREA: REFERÊNCIAS DO DOM
-        // ===========================================
-        // Elementos do DOM - Referências aos elementos HTML para manipulação
-        // grid: Container onde os cards de imóveis são renderizados
-        // emptyState: Mensagem mostrada quando nenhum resultado é encontrado
-        // resultsCount: Contador de imóveis exibidos
-        // searchForm: Formulário de pesquisa/filtros
+        // ===========================================================
+        // REFERÊNCIAS AOS ELEMENTOS DO DOM
+        // ===========================================================
+        // Guardamos referências aos elementos HTML que vamos
+        // manipular frequentemente. É mais eficiente buscar uma
+        // vez e guardar na variável do que procurar toda vez.
         const grid = document.getElementById('properties-grid');
         const emptyState = document.getElementById('empty-state');
         const resultsCount = document.getElementById('results-count');
         const searchForm = document.getElementById('search-form');
 
-        // ===========================================
-        // ÁREA: RENDERIZAÇÃO DA INTERFACE
-        // ===========================================
-        // Renderizar Propriedades - Função principal que gera os cards na tela
-        // Recebe um array de imóveis e cria o HTML dinamicamente
-        // Inclui lógica para mostrar/esconder estado vazio e animações
+        // ===========================================================
+        // statusLabel(s)
+        // Descrição: Converte código de status para texto legível
+        // Parâmetros: s (string) - 'disponivel' ou 'vendido'
+        // Retorno: 'Disponível', 'Vendido' ou o próprio valor
+        // -------------------------------------------
+        // Função auxiliar usada nos badges dos cards de imóveis.
+        function statusLabel(s) { return s === 'disponivel' ? 'Disponível' : s === 'vendido' ? 'Vendido' : s }
+
+        // ===========================================================
+        // statusBadge(s)
+        // Descrição: Retorna a classe de cor do badge de status
+        // -------------------------------------------
+        // Imóveis disponíveis recebem badge verde (brand-500),
+        // imóveis vendidos recebem badge cinza escuro (gray-800).
+        function statusBadge(s) { return s === 'disponivel' ? 'bg-brand-500' : 'bg-gray-800' }
+
+        // ===========================================================
+        // renderProperties(data)
+        // Descrição: Renderiza os cards de imóveis no grid da página
+        // Parâmetros: data (Array) - lista de imóveis a exibir
+        // -------------------------------------------
+        // Como funciona:
+        // 1. Limpa o grid (innerHTML = '')
+        // 2. Se não há dados, mostra o estado vazio
+        // 3. Para cada imóvel, cria um card com:
+        //    - Imagem (com fallback placeholder se não existir)
+        //    - Badge de status (Disponível/Vendido)
+        //    - Título, localização, tipo
+        //    - Características (quartos, se não for terreno)
+        //    - Preço formatado
+        // 4. Animação fade-in com delay progressivo (cada card
+        //    aparece ligeiramente depois do anterior)
+        // 5. No final, recria os ícones Lucide para os novos cards
         function renderProperties(data) {
             grid.innerHTML = '';
             
@@ -408,14 +409,12 @@
 
             data.forEach((imovel, index) => {
                 const delay = index * 50;
+                const isTerreno = (imovel.tipo || '').toLowerCase() === 'terreno';
                 
-                const featuresHtml = imovel.tipo !== 'Terreno' ? `
+                const featuresHtml = !isTerreno ? `
                     <div class="flex gap-4 text-sm text-gray-600 mb-4">
                         <div class="flex items-center gap-1.5">
                             <i data-lucide="bed-double" class="w-4 h-4"></i> ${imovel.quartos} Qto
-                        </div>
-                        <div class="flex items-center gap-1.5">
-                            <i data-lucide="bath" class="w-4 h-4"></i> ${imovel.casasBanho} WC
                         </div>
                     </div>
                 ` : `<div class="text-sm text-gray-500 italic mb-4">Lote para construção</div>`;
@@ -425,16 +424,16 @@
                 card.style.animationDelay = `${delay}ms`;
                 card.onclick = () => openModal(imovel.id);
 
-                const badgeColor = imovel.status === 'Disponível' ? 'bg-brand-500' : 'bg-gray-800';
+                const img = imovel.imagem_url || 'https://via.placeholder.com/800x600?text=Sem+Imagem';
 
                 card.innerHTML = `
                     <div class="relative h-56 overflow-hidden">
-                        <img src="${imovel.imagem}" alt="${imovel.titulo}" class="w-full h-full object-cover transition-transform duration-500 hover:scale-110" onerror="this.src='https://via.placeholder.com/800x600?text=Sem+Imagem'">
-                        <div class="absolute top-4 left-4 ${badgeColor} text-white text-xs font-bold px-3 py-1 rounded-full uppercase tracking-wide shadow-md">
-                            ${imovel.status}
+                        <img src="${img}" alt="${imovel.titulo}" class="w-full h-full object-cover transition-transform duration-500 hover:scale-110" onerror="this.src='https://via.placeholder.com/800x600?text=Sem+Imagem'">
+                        <div class="absolute top-4 left-4 ${statusBadge(imovel.status)} text-white text-xs font-bold px-3 py-1 rounded-full uppercase tracking-wide shadow-md">
+                            ${statusLabel(imovel.status)}
                         </div>
                         <div class="absolute bottom-4 left-4 bg-white/90 backdrop-blur-sm text-gray-900 text-sm font-semibold px-2 py-1 rounded shadow">
-                            ${imovel.tipo}
+                            ${imovel.tipo || 'Imóvel'}
                         </div>
                     </div>
                     <div class="p-6 flex flex-col flex-grow">
@@ -446,7 +445,7 @@
                         </p>
                         ${featuresHtml}
                         <div class="mt-auto pt-4 border-t border-gray-100 flex items-center justify-between">
-                            <span class="text-lg font-extrabold text-brand-600">${formatCurrency(imovel.preco)}</span>
+                            <span class="text-lg font-extrabold text-brand-600">${formatCurrency(parseFloat(imovel.preco))}</span>
                             <span class="text-brand-500 hover:text-brand-700 bg-brand-50 p-2 rounded-lg transition">
                                 <i data-lucide="arrow-right" class="w-5 h-5"></i>
                             </span>
@@ -456,123 +455,109 @@
                 grid.appendChild(card);
             });
 
+            // Recria os ícones Lucide nos elementos adicionados dinamicamente
             lucide.createIcons();
         }
 
-        // ===========================================
-        // ÁREA: FILTRAGEM E PESQUISA
-        // ===========================================
-        // Lógica de Filtro - Processa o formulário de pesquisa
-        // Filtra imóveis por: Localização, Tipo de imóvel e Preço Máximo
-        // Após filtrar, re-renderiza a grid e faz scroll suave para os resultados
+        // ===========================================================
+        // EVENT LISTENER: SUBMISSÃO DO FORMULÁRIO DE PESQUISA
+        // ===========================================================
+        // Quando o utilizador clica em "Pesquisar", este listener:
+        // 1. Previne o comportamento padrão (recarregar página)
+        // 2. Lê os valores dos filtros (localização, tipo, preço)
+        // 3. Filtra o array allImoveis com base nesses critérios
+        // 4. Atualiza a variável imoveis e re-renderiza os cards
+        // 5. Faz scroll suave para a secção do catálogo
         searchForm.addEventListener('submit', (e) => {
             e.preventDefault();
             const location = document.getElementById('filter-location').value;
             const type = document.getElementById('filter-type').value;
             const maxPrice = parseFloat(document.getElementById('filter-price').value);
 
-            const filteredData = imoveis.filter(imovel => {
+            const filteredData = allImoveis.filter(imovel => {
                 const matchLocation = location === "" || imovel.localizacao === location;
                 const matchType = type === "" || imovel.tipo === type;
-                const matchPrice = imovel.preco <= maxPrice;
+                const matchPrice = parseFloat(imovel.preco) <= maxPrice;
                 return matchLocation && matchType && matchPrice;
             });
 
+            imoveis = filteredData;
             renderProperties(filteredData);
             document.getElementById('catalogo').scrollIntoView({ behavior: 'smooth' });
         });
 
+        // ===========================================================
+        // resetFilters()
+        // Descrição: Limpa todos os filtros e mostra todos os imóveis
+        // -------------------------------------------
+        // Chamado quando o utilizador clica em "Limpar filtros" no
+        // estado vazio. Restaura o formulário ao estado inicial e
+        // re-renderiza todos os imóveis.
         function resetFilters() {
             document.getElementById('search-form').reset();
+            imoveis = [...allImoveis];
             renderProperties(imoveis);
         }
 
+        // Referências ao modal de detalhes e ao body (para controlar scroll)
         const modal = document.getElementById('property-modal');
         const body = document.body;
 
-        // ===========================================
-        // ÁREA: GESTÃO DE MODAIS (JANELAS POP-UP)
-        // ===========================================
-        // Lógica do Modal - Controla a janela de detalhes do imóvel
-        // Abre/fecha o modal, preenche dados, gerencia galeria de imagens
-        // Desativa formulário se imóvel estiver "Vendido"
+        // ===========================================================
+        // openModal(id)
+        // Descrição: Abre o modal de detalhes de um imóvel
+        // Parâmetros: id (string) - ID do imóvel
+        // -------------------------------------------
+        // Funcionamento detalhado:
+        // 1. Encontra o imóvel pelo ID no array imoveis
+        // 2. Preenche todos os campos do modal com os dados do imóvel
+        // 3. Se for um terreno, esconde a secção de quartos
+        // 4. Se o imóvel estiver vendido, desativa o botão de visita
+        // 5. Define a data mínima do calendário como amanhã
+        // 6. Mostra o modal (remove classe 'hidden') e bloqueia scroll
         function openModal(id) {
             const imovel = imoveis.find(i => i.id === id);
             if (!imovel) return;
+            currentImovel = imovel;
 
             const modalImg = document.getElementById('modal-img');
-            modalImg.src = imovel.imagem;
+            modalImg.src = imovel.imagem_url || 'https://via.placeholder.com/800x600?text=Sem+Imagem';
             
-            const thumbnailsContainer = document.getElementById('modal-thumbnails');
-            thumbnailsContainer.innerHTML = '';
-            
-            if (imovel.galeria && imovel.galeria.length > 0) {
-                imovel.galeria.forEach((item, index) => {
-                    const thumbWrapper = document.createElement('div');
-                    
-                    const baseClass = 'relative w-24 h-20 flex-shrink-0 rounded-lg overflow-hidden cursor-pointer border-2 transition-all duration-200 hover:opacity-100 group';
-                    thumbWrapper.className = index === 0 
-                        ? `${baseClass} border-brand-500 opacity-100` 
-                        : `${baseClass} border-transparent opacity-60`;
-                    
-                    thumbWrapper.innerHTML = `
-                        <img src="${item.url}" alt="${item.nome}" class="w-full h-full object-cover">
-                        <div class="absolute inset-x-0 bottom-0 bg-black/60 text-white text-[10px] font-medium text-center py-0.5 px-1 truncate">
-                            ${item.nome}
-                        </div>
-                    `;
-                    
-                    thumbWrapper.onclick = (e) => {
-                        modalImg.classList.add('opacity-0');
-                        
-                        setTimeout(() => {
-                            modalImg.src = item.url;
-                            modalImg.classList.remove('opacity-0');
-                        }, 200);
-                        
-                        Array.from(thumbnailsContainer.children).forEach(child => {
-                            child.classList.remove('border-brand-500', 'opacity-100');
-                            child.classList.add('border-transparent', 'opacity-60');
-                        });
-                        thumbWrapper.classList.remove('border-transparent', 'opacity-60');
-                        thumbWrapper.classList.add('border-brand-500', 'opacity-100');
-                    };
-                    
-                    thumbnailsContainer.appendChild(thumbWrapper);
-                });
-            } else {
-                thumbnailsContainer.innerHTML = '<p class="text-sm text-gray-400 italic">Sem galeria adicional.</p>';
-            }
+            document.getElementById('modal-thumbnails').innerHTML = '<p class="text-sm text-gray-400 italic">Clique para mais detalhes</p>';
 
-            document.getElementById('modal-status').textContent = imovel.status;
-            document.getElementById('modal-status').className = `absolute top-4 left-4 text-white text-xs font-bold px-3 py-1 rounded-full uppercase tracking-wide shadow-md ${imovel.status === 'Disponível' ? 'bg-brand-500' : 'bg-gray-800'}`;
-            document.getElementById('modal-type').textContent = imovel.tipo;
+            const isVendido = imovel.status === 'vendido';
+            document.getElementById('modal-status').textContent = statusLabel(imovel.status);
+            document.getElementById('modal-status').className = `absolute top-4 left-4 text-white text-xs font-bold px-3 py-1 rounded-full uppercase tracking-wide shadow-md ${statusBadge(imovel.status)}`;
+            document.getElementById('modal-type').textContent = imovel.tipo || '';
             document.getElementById('modal-title').textContent = imovel.titulo;
             document.querySelector('#modal-location span').textContent = `${imovel.localizacao}, Huambo`;
-            document.getElementById('modal-price').textContent = formatCurrency(imovel.preco);
+            document.getElementById('modal-price').textContent = formatCurrency(parseFloat(imovel.preco));
             document.getElementById('modal-desc').textContent = imovel.descricao;
             document.getElementById('visit-property-id').value = imovel.id;
 
+            // Controla visibilidade dos campos de quartos/casas de banho
             const bedsEl = document.getElementById('modal-beds').parentElement;
             const bathsEl = document.getElementById('modal-baths').parentElement;
-            if(imovel.tipo === 'Terreno') {
+            const isTerreno = (imovel.tipo || '').toLowerCase() === 'terreno';
+            if (isTerreno) {
                 bedsEl.style.display = 'none';
                 bathsEl.style.display = 'none';
             } else {
                 bedsEl.style.display = 'flex';
-                bathsEl.style.display = 'flex';
+                bathsEl.style.display = 'none';
                 document.getElementById('modal-beds').textContent = `${imovel.quartos} Quartos`;
-                document.getElementById('modal-baths').textContent = `${imovel.casasBanho} WC(s)`;
             }
 
             document.getElementById('visit-form').reset();
             
+            // Define data mínima para o campo de data (amanhã)
             const tomorrow = new Date();
             tomorrow.setDate(tomorrow.getDate() + 1);
             document.getElementById('visit-date').min = tomorrow.toISOString().split('T')[0];
 
+            // Se vendido, desativa o botão de solicitar visita
             const submitBtn = document.querySelector('#visit-form button');
-            if (imovel.status === 'Vendido') {
+            if (isVendido) {
                 submitBtn.disabled = true;
                 submitBtn.classList.add('opacity-50', 'cursor-not-allowed');
                 submitBtn.textContent = 'Imóvel Indisponível';
@@ -586,24 +571,82 @@
             body.classList.add('modal-open');
         }
 
+        // ===========================================================
+        // closeModal()
+        // Descrição: Fecha o modal de detalhes
+        // -------------------------------------------
+        // Reverte o que openModal fez: esconde o modal e
+        // reativa o scroll da página.
         function closeModal() {
             modal.classList.add('hidden');
             body.classList.remove('modal-open');
         }
 
+        // ===========================================================
+        // contactWhatsApp(imovel)
+        // Descrição: Abre conversa no WhatsApp com o corretor
+        // -------------------------------------------
+        // Formata o número de telefone (remove tudo que não é dígito)
+        // e abre o link wa.me/244... que inicia uma conversa no
+        // WhatsApp Web/App. O código 244 é de Angola.
+        function contactWhatsApp(imovel) {
+            if (!imovel || !imovel.corretor_telefone) {
+                showToast('Número de telefone do corretor não disponível.', 'error');
+                return;
+            }
+            const phone = imovel.corretor_telefone.replace(/\D/g, '');
+            window.open(`https://wa.me/244${phone}`, '_blank');
+        }
+
+        // ===========================================================
+        // contactCall(imovel)
+        // Descrição: Inicia chamada telefónica para o corretor
+        // -------------------------------------------
+        // Usa o protocolo tel: que abre o discador do dispositivo.
+        function contactCall(imovel) {
+            if (!imovel || !imovel.corretor_telefone) {
+                showToast('Número de telefone do corretor não disponível.', 'error');
+                return;
+            }
+            const phone = imovel.corretor_telefone.replace(/\D/g, '');
+            window.location.href = `tel:+244${phone}`;
+        }
+
+        // ===========================================================
+        // contactEmail(imovel)
+        // Descrição: Abre cliente de email para contactar o corretor
+        // -------------------------------------------
+        // Usa o protocolo mailto: que abre o programa de email padrão.
+        function contactEmail(imovel) {
+            if (!imovel || !imovel.corretor_email) {
+                showToast('Email do corretor não disponível.', 'error');
+                return;
+            }
+            window.location.href = `mailto:${imovel.corretor_email}`;
+        }
+
+        // ===========================================================
+        // EVENT LISTENER: TECLA ESC (Fechar Modal)
+        // ===========================================================
+        // Permite fechar o modal pressionando a tecla Escape no
+        // teclado, uma convenção padrão de usabilidade.
         document.addEventListener('keydown', (e) => {
             if (e.key === 'Escape' && !modal.classList.contains('hidden')) {
                 closeModal();
             }
         });
 
-        // ===========================================
-        // ÁREA: FORMULÁRIOS E ENVIO DE DADOS
-        // ===========================================
-        // Lógica de Solicitação de Visita - Processa formulário de agendamento
-        // Simula envio para API (em produção seria: fetch('/api/appointments', ...))
-        // Mostra toast de sucesso e fecha modal após 1 segundo
-        document.getElementById('visit-form').addEventListener('submit', (e) => {
+        // ===========================================================
+        // EVENT LISTENER: SUBMISSÃO DO FORMULÁRIO DE VISITA
+        // ===========================================================
+        // Quando o utilizador preenche e envia o formulário de
+        // solicitação de visita:
+        // 1. Previne recarregamento da página (e.preventDefault)
+        // 2. Desativa o botão e mostra ícone de carregamento (spinner)
+        // 3. Chama a API para criar o agendamento
+        // 4. Em caso de sucesso: fecha modal, mostra toast de sucesso
+        // 5. Em caso de erro: mostra toast de erro com a mensagem
+        document.getElementById('visit-form').addEventListener('submit', async (e) => {
             e.preventDefault();
             
             const btn = e.target.querySelector('button');
@@ -612,20 +655,32 @@
             btn.disabled = true;
             lucide.createIcons();
 
-            setTimeout(() => {
+            try {
+                await API.createAppointment({
+                    cliente_nome: document.getElementById('visit-name').value,
+                    cliente_telefone: document.getElementById('visit-phone').value,
+                    data_visita: document.getElementById('visit-date').value,
+                    imovel_id: document.getElementById('visit-property-id').value
+                });
                 closeModal();
                 showToast('Pedido de visita enviado com sucesso! O corretor entrará em contacto em breve.', 'success');
-                btn.textContent = originalText;
-                btn.disabled = false;
-            }, 1000);
+            } catch (err) {
+                showToast(err.message, 'error');
+            }
+
+            btn.textContent = originalText;
+            btn.disabled = false;
         });
 
-        // ===========================================
-        // ÁREA: SISTEMA DE NOTIFICAÇÕES (TOASTS)
-        // ===========================================
-        // Sistema de Notificações (Toasts) - Substitui alert() por notificações elegantes
-        // Tipos: 'success' (verde), 'info' (azul)
-        // Auto-remove após 4 segundos com animação de fade-out
+        // ===========================================================
+        // showToast(message, type)
+        // Descrição: Mostra uma notificação temporária no canto
+        // Parâmetros: message (string), type ('success'|'info')
+        // -------------------------------------------
+        // Cria um elemento div estilizado, injecta no container,
+        // anima a entrada (fade-in + slide-up) e após 4 segundos
+        // anima a saída (fade-out + slide-right) e remove do DOM.
+        // Isto substitui o feio alert() por notificações elegantes.
         function showToast(message, type = 'success') {
             const container = document.getElementById('toast-container');
             const toast = document.createElement('div');
@@ -646,23 +701,61 @@
             container.appendChild(toast);
             lucide.createIcons();
 
+            // Animação de entrada: remove as classes que o mantinham invisível
             requestAnimationFrame(() => {
                 toast.classList.remove('translate-y-10', 'opacity-0');
             });
 
+            // Animação de saída e remoção após 4 segundos
             setTimeout(() => {
                 toast.classList.add('opacity-0', 'translate-x-10');
                 setTimeout(() => toast.remove(), 300);
             }, 4000);
         }
 
-        // ===========================================
-        // ÁREA: INICIALIZAÇÃO DA APLICAÇÃO
-        // ===========================================
-        // Inicializar a aplicação ao carregar a página
-        // Renderiza todos os imóveis mockados inicialmente
-        window.addEventListener('DOMContentLoaded', () => {
+        // ===========================================================
+        // openCorretorArea()
+        // Descrição: Redireciona para a área do corretor
+        // -------------------------------------------
+        // Verifica se o utilizador está autenticado. Se sim,
+        // redireciona para corretor.html. Se não, mostra um toast
+        // informando que precisa fazer login.
+        function openCorretorArea() {
+            const user = API.getUser();
+            if (user && API.getToken()) {
+                window.location.href = 'corretor.html';
+            } else {
+                showToast('Faça login como corretor para aceder.', 'info');
+            }
+        }
+
+        // ===========================================================
+        // INICIALIZAÇÃO (DOMContentLoaded)
+        // ===========================================================
+        // Este evento é disparado quando todo o HTML foi carregado
+        // e processado. É o momento certo para começar a executar
+        // o JavaScript da página.
+        //
+        // O que acontece quando a página carrega:
+        // 1. Busca todos os imóveis da API (fetchProperties)
+        // 2. Guarda em allImoveis (completo) e imoveis (para exibir)
+        // 3. Renderiza os cards na página
+        // 4. Se o utilizador estiver logado, atualiza o ícone do
+        //    botão "Corretor" para indicar que está autenticado
+        window.addEventListener('DOMContentLoaded', async () => {
+            try {
+                allImoveis = await API.fetchProperties();
+                imoveis = [...allImoveis];
+            } catch (err) {
+                showToast('Erro ao carregar imóveis: ' + err.message, 'error');
+            }
             renderProperties(imoveis);
+
+            const user = API.getUser();
+            if (user && API.getToken()) {
+                document.getElementById('corretor-icon').setAttribute('data-lucide', 'user-check');
+                lucide.createIcons();
+            }
         });
 
     </script>

@@ -6,7 +6,11 @@
     <title>Login | Maison Huambo</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <script src="https://unpkg.com/lucide@latest"></script>
+    <script src="js/api.js"></script>
     <script>
+        // ===============================================================
+        // CONFIGURAÇÃO DO TAILWIND
+        // ===============================================================
         tailwind.config = {
             theme: {
                 extend: {
@@ -28,6 +32,7 @@
     </script>
     <style>
         body { margin: 0; }
+        /* Fundo animado com gradiente que se move suavemente */
         .bg-animated {
             background: linear-gradient(-45deg, #134e4a, #0d9488, #14b8a6, #0d9488);
             background-size: 400% 400%;
@@ -38,6 +43,7 @@
             50% { background-position: 100% 50%; }
             100% { background-position: 0% 50%; }
         }
+        /* Efeito "vidro fosco" no cartão de login */
         .glass {
             background: rgba(255, 255, 255, 0.1);
             backdrop-filter: blur(10px);
@@ -47,15 +53,18 @@
         .fade-in { animation: fadeIn 1s ease-out; }
         @keyframes fadeIn { from { opacity: 0; transform: translateY(20px); } to { opacity: 1; transform: translateY(0); } }
         
-        /* Toggle entre Login/Cadastro */
+        /* Classe para esconder um formulário (alternar entre Login e Cadastro) */
         .form-hidden { display: none; }
     </style>
 </head>
 <body class="bg-animated min-h-screen flex items-center justify-center p-4">
 
+    <!-- ============================================================
+    CARTÃO CENTRAL (Login / Cadastro)
+    ============================================================ -->
     <div class="glass rounded-3xl p-8 md:p-12 max-w-md w-full fade-in shadow-2xl">
         
-        <!-- Logo -->
+        <!-- Logo e título -->
         <div class="text-center mb-8">
             <div class="inline-flex items-center justify-center w-16 h-16 rounded-2xl bg-white/20 mb-4">
                 <i data-lucide="home" class="w-8 h-8 text-white"></i>
@@ -64,7 +73,7 @@
             <p class="text-white/70">Acesse sua conta ou cadastre-se</p>
         </div>
 
-        <!-- Toggle Buttons -->
+        <!-- Botões de alternância entre Login e Cadastro -->
         <div class="flex bg-white/10 rounded-xl p-1 mb-8">
             <button id="btn-login" onclick="showForm('login')" class="flex-1 py-2.5 rounded-lg font-medium text-white bg-white/20 transition">
                 Login
@@ -74,7 +83,9 @@
             </button>
         </div>
 
-        <!-- Formulário de Login -->
+        <!-- ============================================================
+        FORMULÁRIO DE LOGIN
+        ============================================================ -->
         <form id="form-login" class="space-y-4">
             <div>
                 <label class="block text-sm font-semibold text-white/90 mb-1">E-mail</label>
@@ -102,7 +113,9 @@
             </button>
         </form>
 
-        <!-- Formulário de Cadastro -->
+        <!-- ============================================================
+        FORMULÁRIO DE CADASTRO
+        ============================================================ -->
         <form id="form-cadastro" class="form-hidden space-y-4">
             <div>
                 <label class="block text-sm font-semibold text-white/90 mb-1">Nome Completo</label>
@@ -150,7 +163,7 @@
             </button>
         </form>
 
-        <!-- Link para voltar -->
+        <!-- Link para voltar à página inicial -->
         <div class="mt-6 text-center">
             <a href="boas-vindas.html" class="text-white/60 hover:text-white text-sm inline-flex items-center gap-1">
                 <i data-lucide="arrow-left" class="w-4 h-4"></i>
@@ -160,13 +173,27 @@
 
     </div>
 
+    <!-- ============================================================
+    JAVASCRIPT DA PÁGINA DE LOGIN
+    ============================================================ -->
     <script>
+        // ===========================================================
+        // INICIALIZAÇÃO DOS ÍCONES LUCIDE
+        // ===========================================================
         lucide.createIcons();
 
-        // =========================================
-        // ÁREA: NAVEGAÇÃO ENTRE FORMULÁRIOS
-        // =========================================
-        // Alterna a visualização entre formulários de Login e Cadastro
+        // ===========================================================
+        // showForm(form)
+        // Descrição: Alterna entre o formulário de Login e Cadastro
+        // Parâmetros: form (string) - 'login' ou 'cadastro'
+        // -------------------------------------------
+        // Como funciona:
+        // 1. Obtém referências aos dois formulários e botões
+        // 2. Se form === 'login': mostra o formulário de login,
+        //    esconde o de cadastro, destaca o botão Login
+        // 3. Se form === 'cadastro': faz o oposto
+        // Isto é feito adicionando/removendo classes CSS que
+        // controlam visibilidade e estilo ativo dos botões.
         function showForm(form) {
             const loginForm = document.getElementById('form-login');
             const cadastroForm = document.getElementById('form-cadastro');
@@ -190,37 +217,98 @@
             }
         }
 
-        // =========================================
-        // ÁREA: PROCESSAMENTO DE FORMULÁRIOS
-        // =========================================
-        // Simulação de login (em produção seria: POST /api/auth/login)
-        document.getElementById('form-login').addEventListener('submit', (e) => {
+        // ===========================================================
+        // EVENT LISTENER: SUBMISSÃO DO FORMULÁRIO DE LOGIN
+        // ===========================================================
+        // Quando o utilizador clica "Entrar":
+        // 1. Previne o recarregamento da página
+        // 2. Lê o email e password dos campos
+        // 3. Desativa o botão e mostra spinner de carregamento
+        // 4. Chama API.login(email, password) que faz a autenticação
+        // 5. Se sucesso:
+        //    - Mostra toast de sucesso
+        //    - Redireciona baseado no tipo de conta (role):
+        //      - admin -> admin.html
+        //      - proprietario -> proprietario.html
+        //      - corretor -> corretor.html
+        //      - outro -> index.html (página pública)
+        // 6. Se erro: mostra toast com a mensagem de erro
+        document.getElementById('form-login').addEventListener('submit', async (e) => {
             e.preventDefault();
-            // Simular autenticação
-            showToast('Login realizado com sucesso! Redirecionando...', 'success');
-            setTimeout(() => {
-                // Em produção: redirecionar baseado no tipo de usuário
-                window.location.href = 'index.html';
-            }, 2000);
+            const email = e.target.querySelector('input[type="email"]').value;
+            const password = e.target.querySelector('input[type="password"]').value;
+            const btn = e.target.querySelector('button[type="submit"]');
+            btn.disabled = true;
+            btn.innerHTML = '<i data-lucide="loader-2" class="w-5 h-5 animate-spin mx-auto"></i>';
+            lucide.createIcons();
+
+            try {
+                const data = await API.login(email, password);
+                showToast('Login realizado com sucesso! Redirecionando...', 'success');
+                // Redireciona após 1.5 segundos para o utilizador ver o toast
+                setTimeout(() => {
+                    const role = data.user.role;
+                    if (role === 'admin') window.location.href = 'admin.html';
+                    else if (role === 'proprietario') window.location.href = 'proprietario.html';
+                    else if (role === 'corretor') window.location.href = 'corretor.html';
+                    else window.location.href = 'index.html';
+                }, 1500);
+            } catch (err) {
+                showToast(err.message, 'error');
+                btn.disabled = false;
+                btn.textContent = 'Entrar';
+            }
         });
 
-        // Simulação de cadastro (em produção seria: POST /api/auth/register)
-        document.getElementById('form-cadastro').addEventListener('submit', (e) => {
+        // ===========================================================
+        // EVENT LISTENER: SUBMISSÃO DO FORMULÁRIO DE CADASTRO
+        // ===========================================================
+        // Quando o utilizador clica "Criar Conta":
+        // 1. Previne recarregamento da página
+        // 2. Lê os valores de todos os campos (input/select)
+        //    usando a posição no DOM (inputs[0], inputs[1], etc.)
+        // 3. Desativa botão e mostra spinner
+        // 4. Chama API.register com os dados
+        // 5. Se sucesso: mostra toast, volta ao formulário de login
+        // 6. Se erro: mostra toast com mensagem
+        document.getElementById('form-cadastro').addEventListener('submit', async (e) => {
             e.preventDefault();
-            showToast('Conta criada com sucesso! Faça login para continuar.', 'success');
-            showForm('login');
+            const inputs = e.target.querySelectorAll('input, select');
+            const nome = inputs[0].value;
+            const email = inputs[1].value;
+            const telefone = inputs[2].value;
+            const role = inputs[3].value;
+            const password = inputs[4].value;
+            const btn = e.target.querySelector('button[type="submit"]');
+            btn.disabled = true;
+            btn.innerHTML = '<i data-lucide="loader-2" class="w-5 h-5 animate-spin mx-auto"></i>';
+            lucide.createIcons();
+
+            try {
+                await API.register(nome, email, password, role, telefone);
+                showToast('Conta criada com sucesso! Faça login.', 'success');
+                showForm('login');
+            } catch (err) {
+                showToast(err.message, 'error');
+            }
+            btn.disabled = false;
+            btn.textContent = 'Criar Conta';
         });
 
-        // =========================================
-        // ÁREA: SISTEMA DE NOTIFICAÇÕES (TOASTS)
-        // =========================================
-        // Mostra notificação temporária
+        // ===========================================================
+        // showToast(message, type)
+        // Descrição: Mostra uma notificação temporária
+        // -------------------------------------------
+        // Versão melhorada que também suporta o tipo 'error' (vermelho).
+        // Se o container de toasts não existir, cria um.
         function showToast(message, type = 'success') {
             const container = document.getElementById('toast-container') || createToastContainer();
             const toast = document.createElement('div');
             
-            const bgColor = type === 'success' ? 'bg-green-600' : 'bg-blue-600';
-            const icon = type === 'success' ? 'check-circle' : 'info';
+            const colors = { success: 'bg-green-600', info: 'bg-blue-600', error: 'bg-red-600' };
+            const icons = { success: 'check-circle', info: 'info', error: 'alert-circle' };
+            const bgColor = colors[type] || 'bg-blue-600';
+            const icon = icons[type] || 'info';
 
             toast.className = `${bgColor} text-white px-4 py-3 rounded-lg shadow-lg flex items-center gap-3 transform transition-all duration-300 translate-y-10 opacity-0`;
             toast.innerHTML = `<i data-lucide="${icon}" class="w-5 h-5 flex-shrink-0"></i><p class="text-sm font-medium">${message}</p>`;
@@ -228,16 +316,25 @@
             container.appendChild(toast);
             lucide.createIcons();
 
+            // Anima a entrada (removendo as classes que o mantêm invisível)
             requestAnimationFrame(() => {
                 toast.classList.remove('translate-y-10', 'opacity-0');
             });
 
+            // Anima saída e remove após 4 segundos
             setTimeout(() => {
                 toast.classList.add('opacity-0', 'translate-x-10');
                 setTimeout(() => toast.remove(), 300);
             }, 4000);
         }
 
+        // ===========================================================
+        // createToastContainer()
+        // Descrição: Cria o container de toasts se não existir
+        // -------------------------------------------
+        // Garante que o container está presente no DOM antes de
+        // tentar adicionar notificações. Útil para páginas que
+        // podem não ter o container pré-definido no HTML.
         function createToastContainer() {
             const container = document.createElement('div');
             container.id = 'toast-container';
@@ -246,7 +343,11 @@
             return container;
         }
 
-        // Inicializar com formulário de login
+        // ===========================================================
+        // INICIALIZAÇÃO
+        // ===========================================================
+        // Ao carregar a página, mostra o formulário de login por
+        // padrão (em vez do de cadastro).
         showForm('login');
     </script>
 </body>

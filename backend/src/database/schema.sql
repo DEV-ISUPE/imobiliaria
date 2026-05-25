@@ -7,6 +7,7 @@ CREATE TABLE usuarios (
   nome VARCHAR(100) NOT NULL,
   email VARCHAR(100) UNIQUE NOT NULL,
   password_hash VARCHAR(255) NOT NULL,
+  telefone VARCHAR(20),
   role VARCHAR(20) DEFAULT 'corretor',
   created_at DATETIME DEFAULT CURRENT_TIMESTAMP
 );
@@ -15,10 +16,12 @@ CREATE TABLE imoveis (
   id VARCHAR(36) PRIMARY KEY,
   titulo VARCHAR(200) NOT NULL,
   descricao TEXT,
-  preco DECIMAL(10,2) NOT NULL,
+  preco DECIMAL(12,2) NOT NULL,
   quartos INT,
+  tipo VARCHAR(50),
   localizacao VARCHAR(200),
   imagem_url VARCHAR(500),
+  galeria TEXT,
   status VARCHAR(20) DEFAULT 'disponivel',
   corretor_id VARCHAR(36),
   created_at DATETIME DEFAULT CURRENT_TIMESTAMP,

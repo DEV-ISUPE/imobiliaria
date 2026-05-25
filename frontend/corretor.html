@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
-    <title>Painel do Proprietário | Maison Huambo</title>
+    <title>Painel do Corretor | Maison Huambo</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <script src="https://unpkg.com/lucide@latest"></script>
     <script src="js/api.js"></script>
@@ -41,15 +41,15 @@
     BARRA LATERAL (Sidebar)
     ============================================================ -->
     <aside class="hidden md:flex flex-col w-64 bg-white border-r border-gray-200 h-full">
-        <!-- Logótipo da sidebar -->
+        <!-- Logótipo da sidebar específico para corretores -->
         <div class="h-16 flex items-center px-6 border-b border-gray-200">
             <div class="flex items-center gap-2">
                 <i data-lucide="home" class="text-brand-600 w-6 h-6"></i>
-                <span class="font-bold text-lg tracking-tight text-brand-900">Maison Proprietário</span>
+                <span class="font-bold text-lg tracking-tight text-brand-900">Maison Corretor</span>
             </div>
         </div>
         
-        <!-- Menu de navegação -->
+        <!-- Menu de navegação do corretor -->
         <div class="p-4 flex flex-col gap-2 flex-grow">
             <p class="px-2 text-xs font-semibold text-gray-400 uppercase tracking-wider mb-2">Menu Principal</p>
             
@@ -61,7 +61,7 @@
             <button onclick="switchTab('agendamentos')" id="tab-btn-agendamentos" class="flex items-center gap-3 px-3 py-2.5 rounded-lg font-medium transition-colors text-gray-600 hover:bg-gray-50 w-full text-left">
                 <div class="relative">
                     <i data-lucide="calendar-check" class="w-5 h-5"></i>
-                    <!-- Indicador vermelho pulsante para novas solicitações -->
+                    <!-- Indicador pulsante vermelho para novas visitas -->
                     <span class="absolute -top-1 -right-1 flex h-2.5 w-2.5">
                         <span class="animate-ping absolute inline-flex h-full w-full rounded-full bg-red-400 opacity-75"></span>
                         <span class="relative inline-flex rounded-full h-2.5 w-2.5 bg-red-500"></span>
@@ -71,7 +71,7 @@
             </button>
         </div>
 
-        <!-- Botão de sair (terminar sessão) -->
+        <!-- Botão para terminar sessão -->
         <div class="p-4 border-t border-gray-200">
             <button onclick="API.logout()" class="flex items-center gap-3 px-3 py-2.5 rounded-lg font-medium text-red-600 hover:bg-red-50 w-full transition-colors text-left">
                 <i data-lucide="log-out" class="w-5 h-5"></i>
@@ -84,7 +84,7 @@
     CONTEÚDO PRINCIPAL
     ============================================================ -->
     <main class="flex-1 flex flex-col h-full overflow-hidden">
-        <!-- Cabeçalho superior com título e informações do utilizador -->
+        <!-- Cabeçalho com título e avatar do utilizador -->
         <header class="h-16 bg-white border-b border-gray-200 flex items-center justify-between px-4 sm:px-6 z-10">
             <div class="flex items-center gap-3 md:hidden">
                 <i data-lucide="home" class="text-brand-600 w-6 h-6"></i>
@@ -95,7 +95,6 @@
                 <h1 id="page-title" class="text-xl font-bold text-gray-800">Meus Imóveis</h1>
             </div>
 
-            <!-- Avatar e informações do utilizador logado -->
             <div class="flex items-center gap-4">
                 <button class="text-gray-400 hover:text-gray-600 relative">
                     <i data-lucide="bell" class="w-6 h-6"></i>
@@ -103,9 +102,9 @@
                 <div class="flex items-center gap-3 pl-4 border-l border-gray-200">
                     <img src="https://ui-avatars.com/api/?name=Paulo+Kapitia&background=0D8ABC&color=fff" alt="Avatar" class="w-8 h-8 rounded-full border border-gray-200">
                     <div class="hidden sm:block text-sm">
-                        <!-- Nome e role preenchidos dinamicamente pelo JS -->
+                        <!-- Nome e role do utilizador (preenchidos dinamicamente) -->
                         <p class="font-bold text-gray-900">Paulo Kapitia</p>
-                        <p class="text-gray-500 text-xs">Proprietário</p>
+                        <p class="text-gray-500 text-xs">Corretor</p>
                     </div>
                 </div>
             </div>
@@ -114,7 +113,7 @@
         <div class="flex-1 overflow-y-auto p-4 sm:p-6 lg:p-8 bg-gray-50">
             
             <!-- ============================================================
-            SECÇÃO: MEUS IMÓVEIS (Tab principal)
+            SECÇÃO: MEUS IMÓVEIS
             ============================================================ -->
             <div id="view-imoveis" class="fade-in block">
                 <!-- Cartões de estatísticas (total, disponíveis, visitas) -->
@@ -158,7 +157,6 @@
                         </button>
                     </div>
                     
-                    <!-- Tabela de imóveis (preenchida dinamicamente) -->
                     <div class="overflow-x-auto">
                         <table class="w-full text-left text-sm whitespace-nowrap">
                             <thead class="bg-gray-50 text-gray-500 font-semibold uppercase text-xs">
@@ -178,7 +176,7 @@
             </div>
 
             <!-- ============================================================
-            SECÇÃO: AGENDAMENTOS (Visitas solicitadas)
+            SECÇÃO: AGENDAMENTOS (Pedidos de Visita)
             ============================================================ -->
             <div id="view-agendamentos" class="fade-in hidden">
                 <div class="bg-white rounded-xl shadow-sm border border-gray-100 overflow-hidden">
@@ -187,7 +185,6 @@
                         <p class="text-sm text-gray-500">Gerencie as visitas agendadas para os seus imóveis.</p>
                     </div>
                     
-                    <!-- Tabela de agendamentos (preenchida dinamicamente) -->
                     <div class="overflow-x-auto">
                         <table class="w-full text-left text-sm whitespace-nowrap">
                             <thead class="bg-gray-50 text-gray-500 font-semibold uppercase text-xs">
@@ -210,7 +207,7 @@
     </main>
 
     <!-- ============================================================
-    MODAL: ADICIONAR IMÓVEL
+    MODAL: ADICIONAR IMÓVEL (Corretor)
     ============================================================ -->
     <div id="add-modal" class="fixed inset-0 z-50 hidden">
         <div class="fixed inset-0 bg-gray-900 bg-opacity-75 backdrop-blur-sm" onclick="closeModal()"></div>
@@ -223,17 +220,14 @@
                     </div>
                     <form id="form-add-imovel" class="p-6">
                         <div class="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4">
-                            <!-- Título -->
                             <div class="md:col-span-2">
                                 <label class="block text-sm font-semibold text-gray-700 mb-1">Título do Anúncio</label>
                                 <input type="text" id="add-titulo" required class="w-full bg-white border border-gray-200 text-gray-900 py-2 px-3 rounded-lg focus:outline-none focus:ring-2 focus:ring-brand-500">
                             </div>
-                            <!-- Descrição -->
                             <div class="md:col-span-2">
                                 <label class="block text-sm font-semibold text-gray-700 mb-1">Descrição</label>
                                 <textarea id="add-descricao" rows="3" class="w-full bg-white border border-gray-200 text-gray-900 py-2 px-3 rounded-lg focus:outline-none focus:ring-2 focus:ring-brand-500" placeholder="Descreva o imóvel..."></textarea>
                             </div>
-                            <!-- Tipo de imóvel (muda visibilidade dos quartos) -->
                             <div>
                                 <label class="block text-sm font-semibold text-gray-700 mb-1">Tipo de Imóvel</label>
                                 <select id="add-tipo" required onchange="toggleQuartos('add')" class="w-full bg-white border border-gray-200 text-gray-900 py-2 px-3 rounded-lg focus:outline-none focus:ring-2 focus:ring-brand-500">
@@ -242,7 +236,6 @@
                                     <option value="Terreno">Terreno</option>
                                 </select>
                             </div>
-                            <!-- Localização -->
                             <div>
                                 <label class="block text-sm font-semibold text-gray-700 mb-1">Localização</label>
                                 <select id="add-local" required class="w-full bg-white border border-gray-200 text-gray-900 py-2 px-3 rounded-lg focus:outline-none focus:ring-2 focus:ring-brand-500">
@@ -252,27 +245,23 @@
                                     <option value="Benfica">Benfica</option>
                                 </select>
                             </div>
-                            <!-- Preço -->
                             <div>
                                 <label class="block text-sm font-semibold text-gray-700 mb-1">Preço (Kz)</label>
                                 <input type="number" id="add-preco" required min="0" class="w-full bg-white border border-gray-200 text-gray-900 py-2 px-3 rounded-lg focus:outline-none focus:ring-2 focus:ring-brand-500">
                             </div>
-                            <!-- Quartos (escondido para terrenos) -->
                             <div id="add-quartos-group">
                                 <label class="block text-sm font-semibold text-gray-700 mb-1">Quartos</label>
                                 <input type="number" id="add-quartos" value="1" min="0" class="w-full bg-white border border-gray-200 text-gray-900 py-2 px-3 rounded-lg focus:outline-none focus:ring-2 focus:ring-brand-500">
                             </div>
-                            <!-- Upload de imagens -->
+                            <!-- Secção de upload de imagens -->
                             <div class="md:col-span-2 border-t border-gray-100 pt-4 mt-2">
                                 <label class="block text-sm font-semibold text-gray-700 mb-2">Imagens</label>
 
-                                <!-- Zona de upload da imagem principal (drag & drop visual) -->
                                 <div id="add-main-placeholder" class="border-2 border-dashed border-gray-300 rounded-xl p-6 text-center cursor-pointer hover:border-brand-500 transition mb-3" onclick="openFilePicker('add', 'main')">
                                     <i data-lucide="image-plus" class="w-10 h-10 text-gray-300 mx-auto mb-2"></i>
                                     <p class="text-sm font-medium text-gray-500">Imagem Principal <span class="text-red-400">*</span></p>
                                     <p class="text-xs text-gray-400 mt-1">Clique para selecionar (JPG, PNG, WebP)</p>
                                 </div>
-                                <!-- Pré-visualização da imagem principal (escondida até carregar) -->
                                 <div id="add-main-preview" class="hidden relative w-full h-52 rounded-xl overflow-hidden border border-gray-200 mb-3">
                                     <img id="add-main-img" class="w-full h-full object-cover">
                                     <button type="button" onclick="removeMainImage('add')" class="absolute top-2 right-2 bg-red-500 text-white rounded-full p-1.5 hover:bg-red-600 shadow transition"><i data-lucide="x" class="w-4 h-4"></i></button>
@@ -280,16 +269,13 @@
                                 </div>
                                 <input type="file" id="add-main-file" accept="image/*" class="hidden" onchange="handleMainUpload('add', this.files[0])">
 
-                                <!-- Botão para adicionar mais imagens (galeria) -->
                                 <button type="button" onclick="openFilePicker('add', 'gallery')" class="mt-2 text-sm text-brand-600 hover:text-brand-700 font-medium flex items-center gap-1">
                                     <i data-lucide="plus-circle" class="w-4 h-4"></i> Adicionar mais imagens
                                 </button>
                                 <input type="file" id="add-gallery-file" accept="image/*" multiple class="hidden" onchange="handleGalleryUpload('add', this.files)">
-                                <!-- Pré-visualização das imagens da galeria -->
                                 <div id="add-gallery-previews" class="flex gap-2 mt-3 flex-wrap"></div>
                             </div>
                         </div>
-                        <!-- Botões do formulário -->
                         <div class="pt-4 flex justify-end gap-3 border-t border-gray-100">
                             <button type="button" onclick="closeModal()" class="px-4 py-2 text-gray-600 font-medium hover:bg-gray-100 rounded-lg transition">Cancelar</button>
                             <button type="submit" class="bg-brand-600 hover:bg-brand-500 text-white px-6 py-2 rounded-lg font-medium transition shadow-md">Guardar Imóvel</button>
@@ -301,7 +287,7 @@
     </div>
 
     <!-- ============================================================
-    MODAL: EDITAR IMÓVEL
+    MODAL: EDITAR IMÓVEL (Corretor)
     ============================================================ -->
     <div id="edit-modal" class="fixed inset-0 z-50 hidden">
         <div class="fixed inset-0 bg-gray-900 bg-opacity-75 backdrop-blur-sm" onclick="closeEditModal()"></div>
@@ -312,7 +298,6 @@
                         <h3 class="text-lg font-bold text-gray-900">Editar Imóvel</h3>
                         <button type="button" class="text-gray-400 hover:text-gray-500" onclick="closeEditModal()"><i data-lucide="x" class="w-5 h-5"></i></button>
                     </div>
-                    <!-- Formulário de edição: campos idênticos ao de adicionar -->
                     <form id="form-edit-imovel" class="p-6" onsubmit="saveEdit(event)">
                         <input type="hidden" id="edit-id">
                         <div class="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4">
@@ -385,7 +370,7 @@
     <div id="toast-container" class="fixed bottom-4 right-4 z-50 flex flex-col gap-2"></div>
 
     <!-- ============================================================
-    JAVASCRIPT DO PAINEL DO PROPRIETÁRIO
+    JAVASCRIPT DO PAINEL DO CORRETOR
     ============================================================ -->
     <script>
         // ===========================================================
@@ -396,45 +381,33 @@
         // ===========================================================
         // VARIÁVEIS GLOBAIS
         // ===========================================================
-        let currentTab = 'imoveis';        // Tab atualmente visível
-        let imoveisData = [];              // Array de imóveis
-        let agendamentosData = [];         // Array de agendamentos/visitas
+        let currentTab = 'imoveis';        // Tab ativa: 'imoveis' ou 'agendamentos'
+        let imoveisData = [];              // Imóveis do corretor logado
+        let agendamentosData = [];         // Agendamentos recebidos
 
         // ===========================================================
         // formatCurrency(value)
-        // Descrição: Formata valor para moeda angolana (Kwanza)
-        // -------------------------------------------
-        // Usa a API Intl.NumberFormat para exibir valores
-        // no formato local de Angola (pt-AO).
+        // Descrição: Formata valor numérico para Kwanza (AOA)
         const formatCurrency = (value) => new Intl.NumberFormat('pt-AO', { style: 'currency', currency: 'AOA', minimumFractionDigits: 0 }).format(value);
 
         // ===========================================================
         // statusLabel(s) / statusLabelAg(s)
-        // Descrição: Convertem códigos de status para texto legível
-        // -------------------------------------------
-        // statusLabel: para imóveis ('disponivel' -> 'Disponível')
-        // statusLabelAg: para agendamentos ('pendente' -> 'Pendente')
+        // Descrição: Convertem códigos internos para texto legível
         function statusLabel(s) { return s === 'disponivel' ? 'Disponível' : s === 'vendido' ? 'Vendido' : s }
         function statusLabelAg(s) { return s === 'pendente' ? 'Pendente' : s === 'confirmado' ? 'Confirmado' : s === 'cancelado' ? 'Cancelado' : s }
 
         // ===========================================================
         // renderDashboard()
-        // Descrição: Renderiza toda a interface do painel
+        // Descrição: Renderiza toda a interface do painel do corretor
         // -------------------------------------------
-        // Esta é a função principal de renderização. Ela:
-        // 1. Atualiza os cartões de estatísticas (total, disponíveis, visitas pendentes)
-        // 2. Renderiza a tabela de imóveis com botões de editar/apagar
-        // 3. Renderiza a tabela de agendamentos com botões de aprovar/rejeitar
-        // 4. Recria os ícones Lucide para os elementos dinâmicos
+        // Funciona de forma idêntica ao renderDashboard do proprietário,
+        // mas o corretor pode gerir os imóveis que ele próprio criou
+        // e os agendamentos relacionados a esses imóveis.
         //
-        // Para cada imóvel, cria uma linha na tabela com:
-        // - Thumbnail, título, tipo
-        // - Localização, preço formatado, badge de status
-        // - Botões de editar (azul) e apagar (vermelho)
-        //
-        // Para cada agendamento pendente, mostra botões de
-        // aprovar (verde) e rejeitar (vermelho). Se já foi
-        // processado, mostra apenas "Tratado".
+        // Atualiza:
+        // - Cartões de estatísticas (total, disponíveis, visitas pendentes)
+        // - Tabela de imóveis com botões editar/apagar
+        // - Tabela de agendamentos com botões aprovar/rejeitar
         async function renderDashboard() {
             document.getElementById('stat-total').textContent = imoveisData.length;
             document.getElementById('stat-ativos').textContent = imoveisData.filter(i => i.status === 'disponivel').length;
@@ -467,7 +440,6 @@
                 `;
             });
 
-            // Atualiza contagem de visitas pendentes
             document.getElementById('stat-visitas').textContent = agendamentosData.filter(a => a.status === 'pendente').length;
 
             const tbodyAgendamentos = document.getElementById('table-body-agendamentos');
@@ -509,10 +481,7 @@
 
         // ===========================================================
         // deleteImovel(id)
-        // Descrição: Apaga um imóvel após confirmação do utilizador
-        // -------------------------------------------
-        // Mostra um confirm() nativo. Se o utilizador confirmar,
-        // chama API.deleteProperty() e recarrega os dados.
+        // Descrição: Remove um imóvel após confirmação
         async function deleteImovel(id) {
             if (!confirm('Tem certeza que deseja remover este imóvel?')) return;
             try {
@@ -526,12 +495,7 @@
 
         // ===========================================================
         // toggleQuartos(prefix)
-        // Descrição: Mostra/esconde o campo de quartos conforme o tipo
-        // Parâmetros: prefix ('add' ou 'edit')
-        // -------------------------------------------
-        // Se o tipo selecionado for "Terreno", esconde o campo
-        // de quartos (terrenos não têm quartos). Caso contrário,
-        // mostra o campo.
+        // Descrição: Mostra/esconde o campo de quartos conforme tipo
         function toggleQuartos(prefix) {
             const tipo = document.getElementById(prefix + '-tipo').value;
             const group = document.getElementById(prefix + '-quartos-group');
@@ -543,17 +507,12 @@
         }
 
         // ===========================================================
-        // GESTÃO DE IMAGENS (Upload, Pré-visualização, Remoção)
+        // GESTÃO DE IMAGENS
         // ===========================================================
-        // O imageState guarda o estado das imagens para cada formulário
-        // (add e edit). Cada formulário pode ter:
-        // - main: URL da imagem principal (string vazia se nenhuma)
-        // - gallery: Array de {url, nome} para imagens adicionais
         let imageState = { add: { main: '', gallery: [] }, edit: { main: '', gallery: [] } }
 
         // openFilePicker(prefix, type)
-        // Simula um clique no input file escondido para abrir
-        // o explorador de ficheiros do sistema.
+        // Abre o diálogo de seleção de ficheiros do SO
         function openFilePicker(prefix, type) {
             const input = document.getElementById(prefix + '-' + type + '-file')
             if (!input) return
@@ -562,8 +521,7 @@
         }
 
         // handleMainUpload(prefix, file)
-        // Envia a imagem principal para o servidor e atualiza
-        // a pré-visualização.
+        // Faz upload da imagem principal e atualiza pré-visualização
         async function handleMainUpload(prefix, file) {
             if (!file) return
             try {
@@ -578,8 +536,7 @@
         }
 
         // handleGalleryUpload(prefix, files)
-        // Envia múltiplas imagens para a galeria e atualiza
-        // as pré-visualizações.
+        // Faz upload de múltiplas imagens para a galeria
         async function handleGalleryUpload(prefix, files) {
             if (!files || files.length === 0) return
             try {
@@ -593,22 +550,22 @@
             }
         }
 
-        // removeMainImage(prefix) / removeGalleryImage(prefix, index)
-        // Remove imagens do state e re-renderiza as pré-visualizações.
+        // removeMainImage(prefix)
+        // Remove a imagem principal do state
         function removeMainImage(prefix) {
             imageState[prefix].main = ''
             renderMainPreview(prefix)
         }
 
+        // removeGalleryImage(prefix, index)
+        // Remove uma imagem da galeria pelo índice
         function removeGalleryImage(prefix, index) {
             imageState[prefix].gallery.splice(index, 1)
             renderGalleryPreviews(prefix)
         }
 
         // renderMainPreview(prefix)
-        // Mostra ou esconde a pré-visualização da imagem principal
-        // conforme o state. Se existe URL, mostra a imagem; se não,
-        // mostra o placeholder (área tracejada para upload).
+        // Alterna entre placeholder e pré-visualização da imagem principal
         function renderMainPreview(prefix) {
             const url = imageState[prefix].main
             const placeholder = document.getElementById(prefix + '-main-placeholder')
@@ -626,8 +583,7 @@
         }
 
         // renderGalleryPreviews(prefix)
-        // Renderiza as miniaturas das imagens da galeria com campos
-        // de texto para nomear cada imagem (ex: "Sala", "Quarto").
+        // Renderiza miniaturas da galeria com campo de nome para cada imagem
         function renderGalleryPreviews(prefix) {
             const container = document.getElementById(prefix + '-gallery-previews')
             container.innerHTML = ''
@@ -645,7 +601,7 @@
         }
 
         // updateGalleryNome(prefix, index, value)
-        // Atualiza o nome/descrição de uma imagem da galeria.
+        // Atualiza o nome/legenda de uma imagem específica
         function updateGalleryNome(prefix, index, value) {
             if (imageState[prefix].gallery[index]) {
                 imageState[prefix].gallery[index].nome = value
@@ -653,9 +609,7 @@
         }
 
         // getGaleriaUrls(prefix)
-        // Retorna a URL principal e o array da galeria (excluindo
-        // duplicatas da imagem principal). Prepara os dados para
-        // enviar ao servidor.
+        // Retorna os dados das imagens formatados para enviar ao servidor
         function getGaleriaUrls(prefix) {
             const mainUrl = imageState[prefix].main
             const gallery = imageState[prefix].gallery
@@ -666,14 +620,12 @@
 
         // ===========================================================
         // editImovel(id)
-        // Descrição: Abre o modal de edição preenchido com dados
+        // Descrição: Abre modal de edição com dados do imóvel
         // -------------------------------------------
-        // 1. Encontra o imóvel pelo ID
-        // 2. Preenche todos os campos do formulário de edição
-        // 3. Restaura as imagens (principal e galeria)
-        // 4. Para a galeria, tenta fazer parse JSON caso venha como
-        //    string, ou usa diretamente se já for array
-        // 5. Abre o modal e bloqueia o scroll
+        // Preenche o formulário de edição com os dados atuais
+        // do imóvel e restaura as imagens (principal e galeria)
+        // a partir do objeto imovel.galeria que pode vir como
+        // string JSON ou array diretamente do servidor.
         function editImovel(id) {
             const imovel = imoveisData.find(i => i.id === id);
             if (!imovel) return;
@@ -709,12 +661,11 @@
 
         // ===========================================================
         // saveEdit(e)
-        // Descrição: Guarda as alterações de um imóvel editado
+        // Descrição: Guarda as alterações de um imóvel
         // -------------------------------------------
-        // Chamado pelo onsubmit do formulário de edição.
-        // Recolhe os valores dos campos, monta o objeto e chama
-        // API.updateProperty(). Em caso de sucesso, fecha o modal,
-        // recarrega os dados e mostra toast.
+        // Recolhe os dados do formulário de edição, monta o objeto
+        // de propriedade e chama API.updateProperty().
+        // Para terrenos, força quartos = 0.
         async function saveEdit(e) {
             e.preventDefault();
             const id = document.getElementById('edit-id').value;
@@ -746,10 +697,7 @@
 
         // ===========================================================
         // updateAgendamento(id, novoStatus)
-        // Descrição: Atualiza o status de um agendamento
-        // -------------------------------------------
-        // Chamado ao clicar em Aprovar (confirmado) ou
-        // Rejeitar (cancelado) na tabela de agendamentos.
+        // Descrição: Aprova ou rejeita um pedido de visita
         async function updateAgendamento(id, novoStatus) {
             try {
                 await API.updateAppointmentStatus(id, novoStatus);
@@ -761,8 +709,9 @@
         }
 
         // ===========================================================
-        // EVENT LISTENER: SUBMISSÃO DO FORMULÁRIO "ADICIONAR IMÓVEL"
+        // EVENT LISTENER: SUBMISSÃO "ADICIONAR IMÓVEL"
         // ===========================================================
+        // Valida se a imagem principal foi selecionada antes de enviar.
         document.getElementById('form-add-imovel').addEventListener('submit', async (e) => {
             e.preventDefault();
             const btn = e.target.querySelector('button[type="submit"]');
@@ -798,11 +747,10 @@
 
         // ===========================================================
         // switchTab(tab)
-        // Descrição: Alterna entre as abas "Imóveis" e "Agendamentos"
+        // Descrição: Alterna entre as abas do painel
         // -------------------------------------------
-        // Usa classList.toggle() para mostrar/esconder as secções.
-        // Também atualiza os estilos dos botões laterais para
-        // indicar qual está ativo (com fundo brand-50 e texto brand-600).
+        // Esconde/mostra as secções 'imoveis' e 'agendamentos'
+        // e atualiza o estilo dos botões da sidebar.
         function switchTab(tab) {
             currentTab = tab;
             document.getElementById('view-imoveis').classList.toggle('hidden', tab !== 'imoveis');
@@ -824,10 +772,9 @@
         // openModal() / closeModal() / closeEditModal()
         // Descrição: Controlam a abertura e fecho dos modais
         // -------------------------------------------
-        // openModal(): Abre o modal "Adicionar Imóvel", reseta o
-        // formulário e o state das imagens.
-        // closeModal(): Fecha o modal de adicionar.
-        // closeEditModal(): Fecha o modal de editar.
+        // openModal: Reseta o formulário de adicionar e abre o modal
+        // closeModal: Fecha o modal de adicionar
+        // closeEditModal: Fecha o modal de editar
         const modal = document.getElementById('add-modal');
         function openModal() {
             document.getElementById('form-add-imovel').reset();
@@ -849,11 +796,7 @@
 
         // ===========================================================
         // showToast(message, type)
-        // Descrição: Mostra notificação temporária no canto inferior
-        // -------------------------------------------
-        // Suporta 3 tipos: success (verde), info (azul), error (vermelho).
-        // A notificação aparece com animação slide-up e desaparece
-        // após 4 segundos com slide-right.
+        // Descrição: Notificação temporária no canto inferior direito
         function showToast(message, type = 'success') {
             const container = document.getElementById('toast-container');
             const toast = document.createElement('div');
@@ -874,10 +817,7 @@
 
         // ===========================================================
         // loadData()
-        // Descrição: Carrega os dados do servidor e renderiza
-        // -------------------------------------------
-        // Busca imóveis e agendamentos em paralelo e depois
-        // chama renderDashboard() para atualizar a interface.
+        // Descrição: Carrega imóveis e agendamentos do servidor
         async function loadData() {
             try {
                 const props = await API.fetchProperties();
@@ -893,10 +833,9 @@
         // ===========================================================
         // INICIALIZAÇÃO (DOMContentLoaded)
         // ===========================================================
-        // Quando a página carrega:
         // 1. Verifica se o utilizador está autenticado
-        // 2. Se não estiver, redireciona para login
-        // 3. Se estiver, atualiza o nome e tipo de conta no header
+        // 2. Se não, redireciona para login
+        // 3. Se sim, atualiza nome e role no header
         // 4. Carrega os dados do servidor
         window.addEventListener('DOMContentLoaded', () => {
             const user = API.getUser();
@@ -908,7 +847,7 @@
             const roleEl = document.querySelector('.text-gray-500.text-xs');
             if (user) {
                 if (nameEl) nameEl.textContent = user.nome;
-                if (roleEl) roleEl.textContent = user.role === 'proprietario' ? 'Proprietário' : user.role;
+                if (roleEl) roleEl.textContent = user.role === 'corretor' ? 'Corretor' : user.role;
             }
             loadData();
         });
